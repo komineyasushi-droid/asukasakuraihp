@@ -1,178 +1,15 @@
-﻿<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>聖桜高校 女子バスケ物語</title>
-<style>
-/* CSSは変更なし。前回提供したものをそのまま使用します。 */
-:root{
-  --accent:#87CEFA;
-  --bg:#ffffff;
-  --text:#111;
-  --maxwidth:1080px; 
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:"Hiragino Kaku Gothic Pro","Noto Sans JP",Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-}
-
-header{
-  width:100%;
-  text-align:center;
-  background:#fff;
-  border-bottom:4px solid var(--accent);
-}
-header img{max-width:100%;height:auto;display:block;margin:0 auto}
-
-.wrap{
-  max-width:var(--maxwidth);
-  margin:0 auto;
-  padding:20px 16px;
-  display:flex; 
-  flex-wrap:wrap;
-}
-
-.main{
-  flex:0 0 500px; 
-  background:#fff;
-  border-radius:8px;
-  padding:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.05);
-}
-.main h1{
-  font-size:1.4rem;
-  margin-bottom:14px;
-  color:var(--accent);
-    /* 💡 日記エリアの区切り線 */
-    border-bottom: 2px dashed #eef;
-    padding-bottom: 15px;
-}
-/* 💡 日記表示エリアを淡い色で区切る */
-#news-area {
-    padding: 10px;
-    background-color: #f9f9ff; /* 淡い紫がかった青 */
-    border: 1px solid #e0e0f8;
-    border-radius: 4px;
-    margin-bottom: 15px;
-}
-
-.entry{
-  border-bottom:1px solid #eee;
-  padding:12px 0;
-}
-.entry h2{
-  font-size:1.1rem;
-  color:#333;
-  margin-bottom:6px;
-}
-.entry .content{font-size:0.95rem;white-space:pre-wrap}
-
-.side{
-  flex:1;
-  min-width: 300px;
-  text-align:center;
-  display: flex; 
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px 0;
-}
-.side img{
-  width: 150px; 
-  height:auto;
-  display:block;
-  margin:0 auto 10px auto;
-  border-radius: 8px; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-}
-
-/* カレンダー関連のCSS */
-.calendar-box { 
-    width: 100%; 
-    max-width: 300px; 
-    /* 💡 画像の上で中央に配置するための調整 */
-    margin: 0 auto 30px auto; /* 上0、左右auto(中央)、下30px */
-    padding: 15px; 
-    background: #fff; 
-    border: 1px solid #ddd; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-top: 3px solid #cceeff; /* 💡 淡い青線（上） */
-    border-bottom: 3px solid #cceeff; /* 💡 淡い青線（下） */
-}
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; color: var(--accent); }
-.calendar-header button { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--accent); padding: 0 5px; outline: none; }
-.calendar-table { width: 100%; border-collapse: collapse; }
-.calendar-table th, .calendar-table td { text-align: center; padding: 5px 0; font-size: 0.85rem; border: 1px solid #eee; }
-.calendar-table th { background: #eef; color: #555; }
-.has-diary { font-weight: bold; color: var(--text) !important; background: #fff9e6; cursor: pointer; }
-.selected-day { background: var(--accent) !important; color: #fff !important; border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
-.today { 
-    border: 2px solid orange !important; 
-    font-weight: bold;
-    background-color: #fffae6;
-}
-.calendar-table td:first-child { color: red; } 
-.calendar-table td:last-child { color: blue; } 
-
-footer{
-  margin-top:30px;
-  padding:14px;
-  background:#f8f8f8;
-  border-top:2px solid var(--accent);
-  font-size:0.85rem;
-  color:#555;
-  text-align:center;
-}
-footer a{color:var(--accent);font-weight:600;text-decoration:none}
-
-@media (max-width:900px){ 
-  .wrap { flex-direction: column; align-items: center; }
-  .main { order: 2; flex-basis: auto; width: 100%; max-width: 600px; }
-  .side { order: 1; flex-basis: auto; width: 100%; }
-}
-</style>
-</head>
-<body>
-<header>
-        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
-</header>
-
-<div class="wrap">
-    <main class="main">
-                <div id="hitokoto-area" style="font-size: 1.1rem; font-weight: bold; color: #555; background-color: #f0f8ff; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-            ようこそ！今日も一日、バスケも勉強も頑張りましょう！
-        </div>
-
-        <h1>今日の明日香の日記</h1>
-    <div id="news-area">読み込み中です…</div>
-        <p style="margin-top: 15px;"><a href="past.html">過去の日記を見る</a></p>
-  </main>
-  
-  <aside class="side">
-            <div id="calendar-area" class="calendar-box">
-      <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
-    </div>
-    
-    <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px;" />
-    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
-
-  </aside>
-</div>
-<script>
+﻿<script>
 // =======================================================
-// JSONデータとカレンダー表示のロジック (動作部は変更なし)
+// JSONデータとカレンダー表示のロジック
 // =======================================================
 
 let diaryData = []; 
 let diaryMap = new Map(); 
 let currentDate = new Date(); 
+
+// 💡 未来の月変更を制限する限界日を設定 (現在から約5年後)
+const maxFutureDate = new Date();
+maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 5);
 
 fetch("diary.json") 
     .then(response => {
@@ -201,102 +38,119 @@ fetch("diary.json") 
         console.error("JSONデータの読み込みまたは解析に失敗:", err);
     });
 
-function displayDiaryEntry(date) { 
-    const entry = diaryMap.get(date);
-    const area = document.getElementById("news-area");
-    if (entry) {
-        area.innerHTML = `<article class="entry"><h2>${entry.date} ${entry.title}</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
-    } else {
-        area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
-    }
-    updateSelectedDay(date);
+function displayDiaryEntry(date) { 
+    const entry = diaryMap.get(date);
+    const area = document.getElementById("news-area");
+    // 💡 日記タイトルを更新
+    document.querySelector('.main h1').textContent = `${date}の明日香の日記`; 
+
+    if (entry) {
+        area.innerHTML = `<article class="entry"><h2>${entry.title}</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+    } else {
+        area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
+    }
+    updateSelectedDay(date);
 }
 
 function renderCalendar(year, month) {
-    const calendarArea = document.getElementById('calendar-area');
-    const firstDayOfMonth = new Date(year, month, 1).getDay(); 
-    const daysInMonth = new Date(year, month + 1, 0).getDate(); 
-    const today = new Date();
-    const currentDayKey = formatDate(today);
-    let html = '';
+    const calendarArea = document.getElementById('calendar-area');
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); 
+    const daysInMonth = new Date(year, month + 1, 0).getDate(); 
+    const today = new Date();
+    const currentDayKey = formatDate(today);
     
-    html += '<div class="calendar-header">';
-    html += `<button onclick="changeMonth(-1)">&#9664;</button>`; 
-    html += `<span>${year}年 ${month + 1}月</span>`;
-    html += `<button onclick="changeMonth(1)">&#9654;</button>`; 
-    html += '</div>';
-
-    html += '<table class="calendar-table">';
-    html += '<thead><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr></thead>';
-    html += '<tbody><tr>';
-
-    let day = 1;
-    let i; 
-
-    for (i = 0; i < firstDayOfMonth; i++) {
-        html += '<td></td>';
+    // 💡 月を進めるボタンの表示判定
+    const nextMonth = new Date(year, month + 1, 1);
+    let nextButton = `<button onclick="changeMonth(1)">&#9654;</button>`;
+    if (nextMonth > maxFutureDate) {
+        nextButton = `<button style="opacity: 0.3; cursor: default;">&#9654;</button>`;
     }
 
-    for (; i < 7; i++) {
-        if (day <= daysInMonth) {
-            html += createDayCell(year, month, day++, currentDayKey);
-        } else {
-            html += '<td></td>';
-        }
-    }
-    html += '</tr>';
+    let html = '';
+    
+    html += '<div class="calendar-header">';
+    html += `<button onclick="changeMonth(-1)">&#9664;</button>`; 
+    html += `<span>${year}年 ${month + 1}月</span>`;
+    html += nextButton;
+    html += '</div>';
 
-    while (day <= daysInMonth) {
-        html += '<tr>';
-        for (i = 0; i < 7 && day <= daysInMonth; i++) {
-            html += createDayCell(year, month, day++, currentDayKey);
-        }
-        if (day > daysInMonth) {
-            for (; i < 7; i++) {
-                html += '<td></td>';
-            }
-        }
-        html += '</tr>';
-    }
-    
-    html += '</tbody></table>';
-    
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = html;
-    calendarArea.innerHTML = '';
-    calendarArea.appendChild(wrapper);
+    html += '<table class="calendar-table">';
+    html += '<thead><tr><th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th></tr></thead>';
+    html += '<tbody><tr>';
 
-    if (diaryData.length > 0) {
-        updateSelectedDay(diaryData[0].date);
-    }
+    let day = 1;
+    let i; 
+
+    for (i = 0; i < firstDayOfMonth; i++) {
+        html += '<td></td>';
+    }
+
+    for (; i < 7; i++) {
+        if (day <= daysInMonth) {
+            html += createDayCell(year, month, day++, currentDayKey);
+        } else {
+            html += '<td></td>';
+        }
+    }
+    html += '</tr>';
+
+    while (day <= daysInMonth) {
+        html += '<tr>';
+        for (i = 0; i < 7 && day <= daysInMonth; i++) {
+            html += createDayCell(year, month, day++, currentDayKey);
+        }
+        if (day > daysInMonth) {
+            for (; i < 7; i++) {
+                html += '<td></td>';
+            }
+        }
+        html += '</tr>';
+    }
+    
+    html += '</tbody></table>';
+    
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    calendarArea.innerHTML = '';
+    calendarArea.appendChild(wrapper);
+
+    if (diaryData.length > 0) {
+        updateSelectedDay(diaryData[0].date);
+    }
 }
 function createDayCell(year, month, day, currentDayKey) {
-    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    let className = '';
-    if (dateKey === currentDayKey) { className += ' today'; }
-    if (diaryMap.has(dateKey)) { className += ' has-diary'; }
-    return `<td class="${className}" data-date="${dateKey}" onclick="handleDayClick('${dateKey}')">${day}</td>`;
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    let className = '';
+    if (dateKey === currentDayKey) { className += ' today'; }
+    if (diaryMap.has(dateKey)) { className += ' has-diary'; }
+    // 💡 onclickで日記表示関数を呼ぶことで「実用リンク」として機能しています。
+    return `<td class="${className}" data-date="${dateKey}" onclick="handleDayClick('${dateKey}')">${day}</td>`;
 }
-function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); }
-function handleDayClick(dateKey) { displayDiaryEntry(dateKey); }
+
+function changeMonth(delta) { 
+    const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1);
+    
+    // 💡 5年先の月を超えないように制限
+    if (delta > 0 && nextDate > maxFutureDate) {
+        return; 
+    }
+    
+    currentDate.setMonth(currentDate.getMonth() + delta); 
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); 
+}
+function handleDayClick(dateKey) { 
+    displayDiaryEntry(dateKey); 
+}
 function updateSelectedDay(dateKey) {
-    document.querySelectorAll('.calendar-table td').forEach(td => { td.classList.remove('selected-day'); });
-    const selectedTd = document.querySelector(`td[data-date="${dateKey}"]`);
-    if (selectedTd) { selectedTd.classList.add('selected-day'); }
+    document.querySelectorAll('.calendar-table td').forEach(td => { td.classList.remove('selected-day'); });
+    const selectedTd = document.querySelector(`td[data-date="${dateKey}"]`);
+    if (selectedTd) { selectedTd.classList.add('selected-day'); }
 }
 function formatDate(date) {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
 }
 
 </script>
-
-<footer>
-  <p>© 2025 聖桜高校 女子バスケ物語 Project. 運営: 三鷹夢新聞</p>
-  <p style="margin-top: 5px; font-size: 0.8rem;">※このサイトはゲーム制作のため、架空の団体・人物を含みます。</p>
-</footer>
-
-</body> 
-</html>
