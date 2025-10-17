@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>聖桜高校 女子バスケ物語 | 過去の日記</title>
+<style>
+/* CSSはindex.htmlのものを流用 */
+:root{
+  --accent:#87CEFA;
+  --bg:#ffffff;
+  --text:#111;
+  --maxwidth:800px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Hiragino Kaku Gothic Pro","Noto Sans JP",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+}
+
+header{
+  width:100%;
+  text-align:center;
+  background:#fff;
+  border-bottom:4px solid var(--accent);
+}
+header img{max-width:100%;height:auto;display:block;margin:0 auto}
+
+.wrap{
+  max-width:var(--maxwidth);
+  margin:0 auto;
+  padding:20px 16px;
+}
+
+.main-content{
+  background:#fff;
+  border-radius:8px;
+  padding:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.entry{
+  border-bottom:1px solid #eee;
+  padding:15px 0;
+}
+.entry:last-child {
+    border-bottom: none; /* 最後のエントリーは線なし */
+}
+
+.entry h2{
+  font-size:1.2rem;
+  color:var(--accent);
+  margin-bottom:5px;
+}
+
+.entry .content{
+    font-size:0.95rem;
+    white-space:pre-wrap;
+    margin-top: 5px;
+}
+
+.entry-meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+footer{
+  margin-top:30px;
+  padding:14px;
+  background:#f8f8f8;
+  border-top:2px solid var(--accent);
+  font-size:0.85rem;
+  color:#555;
+  text-align:center;
+}
+footer a{color:var(--accent);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+    <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
+</header>
+
+<div class="wrap">
+    <main class="main-content">
+        <h1>過去の日記一覧</h1>
+        <p style="margin-bottom: 15px;"><a href="index.html">トップページに戻る</a></p>
+        
+        <div id="past-diary-list">
+            読み込み中です…
+        </div>
+    </main>
+</div>
+
+<script>
+// JSONデータを取得し、全件を表示するロジック
+fetch("diary.json")
+    .then(response => {
+        if (!response.ok) {
+            // 💡 読み込み失敗時のエラーハンドリング
+            throw new Error(`ファイル読み込みエラー: ${response.statusText}`);
+        }
+        return response.json(); // JSONとして解析
+    })
+    .then(diaryData => {
+        const listArea = document.getElementById("past-diary-list");
+        listArea.innerHTML = ""; // 読み込み中のメッセージをクリア
+        
+        // 💡 データが空の場合のメッセージ
+        if (!Array.isArray(diaryData) || diaryData.length === 0) {
+            listArea.innerText = "過去の日記はまだありません。";
+            return;
+        }
+
+        let html = '';
+        
+        // JSONデータ（配列）をループしてHTMLを生成
+        diaryData.forEach(entry => {
+            // エントリーごとにHTMLを生成
+            html += `<article class="entry">
+                <h2>${entry.title || "（タイトルなし）"}</h2>
+                <div class="entry-meta">日付: ${entry.date || "日付不明"}</div>
+                <div class="content">${entry.body || "本文なし"}</div>
+            </article>`;
+        });
+
+        // 全ての日記をエリアに挿入
+        listArea.innerHTML = html;
+    })
+    .catch(err => {
+        const listArea = document.getElementById("past-diary-list");
+        listArea.innerHTML = `<p style="color: red;">日記データを読み込めませんでした。エラーをご確認ください。</p>`;
+        console.error("JSONデータの読み込みまたは解析に失敗:", err);
+    });
+</script>
+
+<footer>
+  <p>© 2025 聖桜高校 女子バスケ物語 Project. 運営: 三鷹夢新聞</p>
+</footer>
+
+</body> 
+</html>
