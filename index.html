@@ -80,8 +80,20 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
-/* カレンダー関連のCSS (変更なし) */
-.calendar-box { width: 100%; max-width: 300px; margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+/* カレンダー関連のCSS */
+/* 💡 カレンダーの上下に淡い青線を追加 */
+.calendar-box { 
+    width: 100%; 
+    max-width: 300px; 
+    margin: 30px auto 0 auto; /* 💡 中央寄せのため margin: 0 auto を適用 */
+    padding: 15px; 
+    background: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-top: 3px solid #cceeff; /* 💡 淡い青線（上） */
+    border-bottom: 3px solid #cceeff; /* 💡 淡い青線（下） */
+}
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; color: var(--accent); }
 .calendar-header button { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--accent); padding: 0 5px; outline: none; }
 .calendar-table { width: 100%; border-collapse: collapse; }
@@ -132,13 +144,12 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
   </main>
   
   <aside class="side">
+        <img src="asukasakurai.jpg" alt="桜井明日香" />
+    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
+
     <div id="calendar-area" class="calendar-box">
       <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
     </div>
-    
-        <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px;" />
-    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
-
   </aside>
 </div>
 <script>
