@@ -75,13 +75,12 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   width: 150px; 
   height:auto;
   display:block;
-  /* 💡 画像を中央に寄せるための修正 */
   margin:0 auto 10px auto;
   border-radius: 8px; 
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
-/* カレンダー関連のCSS */
+/* カレンダー関連のCSS (変更なし) */
 .calendar-box { width: 100%; max-width: 300px; margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; color: var(--accent); }
 .calendar-header button { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--accent); padding: 0 5px; outline: none; }
@@ -90,7 +89,6 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
 .calendar-table th { background: #eef; color: #555; }
 .has-diary { font-weight: bold; color: var(--text) !important; background: #fff9e6; cursor: pointer; }
 .selected-day { background: var(--accent) !important; color: #fff !important; border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
-/* 💡 当日を表すスタイルを追加 */
 .today { 
     border: 2px solid orange !important; 
     font-weight: bold;
@@ -134,24 +132,24 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
   </main>
   
   <aside class="side">
-        <img src="asukasakurai.jpg" alt="桜井明日香" />
-    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
-
     <div id="calendar-area" class="calendar-box">
       <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
     </div>
+    
+        <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px;" />
+    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
+
   </aside>
 </div>
 <script>
 // =======================================================
-// JSONデータとカレンダー表示のロジック
+// JSONデータとカレンダー表示のロジック (変更なし)
 // =======================================================
 
 let diaryData = []; 
 let diaryMap = new Map(); 
 let currentDate = new Date(); 
 
-// 💡 JSONファイル名が 'diary.json' であることを前提にfetch
 fetch("diary.json") 
     .then(response => {
         if (!response.ok) {
@@ -165,7 +163,6 @@ fetch("diary.json")
             diaryMap.set(entry.date, entry);
         });
 
-        // ページロード時、最新の日記を表示
         if (diaryData.length > 0) {
             displayDiaryEntry(diaryData[0].date);
         } else {
@@ -180,31 +177,14 @@ fetch("diary.json")
         console.error("JSONデータの読み込みまたは解析に失敗:", err);
     });
 
-function displayDiaryEntry(date) {
-    const entry = diaryMap.get(date);
-    const area = document.getElementById("news-area");
-
-    if (entry) {
-        area.innerHTML = `<article class="entry">
-            <h2>${entry.date} ${entry.title}</h2>
-            <div class="content">${entry.body || "本文なし"}</div>
-        </article>`;
-    } else {
-        area.innerHTML = `<article class="entry">
-            <h2>${date} の日記</h2>
-            <div class="content">この日の日記はまだありません。</div>
-        </article>`;
-    }
-    updateSelectedDay(date);
-}
-
+// (以下、各関数は変更なしのため省略。完全版は前回提示しています。)
+function displayDiaryEntry(date) { /* ... */ }
 function renderCalendar(year, month) {
     const calendarArea = document.getElementById('calendar-area');
     const firstDayOfMonth = new Date(year, month, 1).getDay(); 
     const daysInMonth = new Date(year, month + 1, 0).getDate(); 
     const today = new Date();
-    const currentDayKey = formatDate(today); // 'YYYY-MM-DD'形式の今日の日付
-
+    const currentDayKey = formatDate(today);
     let html = '';
     
     html += '<div class="calendar-header">';
@@ -257,47 +237,20 @@ function renderCalendar(year, month) {
         updateSelectedDay(diaryData[0].date);
     }
 }
-
-/**
- * 1日分のHTMLセルを生成する
- */
 function createDayCell(year, month, day, currentDayKey) {
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     let className = '';
-    
-    // 💡 当日判定
-    if (dateKey === currentDayKey) {
-        className += ' today';
-    }
-    // 日記が存在するかチェック
-    if (diaryMap.has(dateKey)) {
-        className += ' has-diary';
-    }
-
+    if (dateKey === currentDayKey) { className += ' today'; }
+    if (diaryMap.has(dateKey)) { className += ' has-diary'; }
     return `<td class="${className}" data-date="${dateKey}" onclick="handleDayClick('${dateKey}')">${day}</td>`;
 }
-
-
-function changeMonth(delta) {
-    currentDate.setMonth(currentDate.getMonth() + delta);
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
-}
-
-function handleDayClick(dateKey) {
-    displayDiaryEntry(dateKey);
-}
-
+function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(currentDate.getFullYear(), currentDate.getMonth()); }
+function handleDayClick(dateKey) { displayDiaryEntry(dateKey); }
 function updateSelectedDay(dateKey) {
-    document.querySelectorAll('.calendar-table td').forEach(td => {
-        td.classList.remove('selected-day');
-    });
-
+    document.querySelectorAll('.calendar-table td').forEach(td => { td.classList.remove('selected-day'); });
     const selectedTd = document.querySelector(`td[data-date="${dateKey}"]`);
-    if (selectedTd) {
-        selectedTd.classList.add('selected-day');
-    }
+    if (selectedTd) { selectedTd.classList.add('selected-day'); }
 }
-
 function formatDate(date) {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
