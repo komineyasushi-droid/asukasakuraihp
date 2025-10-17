@@ -10,7 +10,7 @@
   --accent:#87CEFA;
   --bg:#ffffff;
   --text:#111;
-  --maxwidth:1080px; 
+  --maxwidth:1080px; 
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -39,7 +39,7 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
 }
 
 .main{
-  flex:0 0 500px; 
+  flex:0 0 500px; 
   background:#fff;
   border-radius:8px;
   padding:20px;
@@ -49,7 +49,19 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   font-size:1.4rem;
   margin-bottom:14px;
   color:var(--accent);
+    /* 💡 日記エリアの区切り線 */
+    border-bottom: 2px dashed #eef;
+    padding-bottom: 15px;
 }
+/* 💡 日記表示エリアを淡い色で区切る */
+#news-area {
+    padding: 10px;
+    background-color: #f9f9ff; /* 淡い紫がかった青 */
+    border: 1px solid #e0e0f8;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
 .entry{
   border-bottom:1px solid #eee;
   padding:12px 0;
@@ -65,27 +77,27 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   flex:1;
   min-width: 300px;
   text-align:center;
-  display: flex; 
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px 0;
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0;
 }
 .side img{
   width: 150px; 
   height:auto;
   display:block;
   margin:0 auto 10px auto;
-  border-radius: 8px; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+  border-radius: 8px; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
 /* カレンダー関連のCSS */
-/* 💡 カレンダーの上下に淡い青線を追加 */
 .calendar-box { 
     width: 100%; 
     max-width: 300px; 
-    margin: 30px auto 0 auto; /* 💡 中央寄せのため margin: 0 auto を適用 */
+    /* 💡 画像の上で中央に配置するための調整 */
+    margin: 0 auto 30px auto; /* 上0、左右auto(中央)、下30px */
     padding: 15px; 
     background: #fff; 
     border: 1px solid #ddd; 
@@ -101,13 +113,13 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
 .calendar-table th { background: #eef; color: #555; }
 .has-diary { font-weight: bold; color: var(--text) !important; background: #fff9e6; cursor: pointer; }
 .selected-day { background: var(--accent) !important; color: #fff !important; border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
-.today { 
-    border: 2px solid orange !important; 
-    font-weight: bold;
-    background-color: #fffae6;
+.today { 
+    border: 2px solid orange !important; 
+    font-weight: bold;
+    background-color: #fffae6;
 }
-.calendar-table td:first-child { color: red; } 
-.calendar-table td:last-child { color: blue; } 
+.calendar-table td:first-child { color: red; } 
+.calendar-table td:last-child { color: blue; } 
 
 footer{
   margin-top:30px;
@@ -120,7 +132,7 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-@media (max-width:900px){ 
+@media (max-width:900px){ 
   .wrap { flex-direction: column; align-items: center; }
   .main { order: 2; flex-basis: auto; width: 100%; max-width: 600px; }
   .side { order: 1; flex-basis: auto; width: 100%; }
@@ -129,67 +141,77 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
+        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
 </header>
 
 <div class="wrap">
     <main class="main">
-        <div id="hitokoto-area" style="font-size: 1.1rem; font-weight: bold; color: #555; background-color: #f0f8ff; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-            ようこそ！今日も一日、バスケも勉強も頑張りましょう！
-        </div>
+                <div id="hitokoto-area" style="font-size: 1.1rem; font-weight: bold; color: #555; background-color: #f0f8ff; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+            ようこそ！今日も一日、バスケも勉強も頑張りましょう！
+        </div>
 
         <h1>今日の明日香の日記</h1>
     <div id="news-area">読み込み中です…</div>
-        <p style="margin-top: 15px;"><a href="past.html">過去の日記を見る</a></p>
+        <p style="margin-top: 15px;"><a href="past.html">過去の日記を見る</a></p>
   </main>
   
   <aside class="side">
-        <img src="asukasakurai.jpg" alt="桜井明日香" />
+            <div id="calendar-area" class="calendar-box">
+      <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
+    </div>
+    
+    <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px;" />
     <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
 
-    <div id="calendar-area" class="calendar-box">
-      <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
-    </div>
   </aside>
 </div>
 <script>
 // =======================================================
-// JSONデータとカレンダー表示のロジック (変更なし)
+// JSONデータとカレンダー表示のロジック (動作部は変更なし)
 // =======================================================
 
-let diaryData = []; 
-let diaryMap = new Map(); 
-let currentDate = new Date(); 
+let diaryData = []; 
+let diaryMap = new Map(); 
+let currentDate = new Date(); 
 
-fetch("diary.json") 
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('JSONファイルを読み込めませんでした。ステータス: ' + response.status);
-        }
-        return response.json(); 
-    })
-    .then(data => {
-        diaryData = data;
-        diaryData.forEach(entry => {
-            diaryMap.set(entry.date, entry);
-        });
+fetch("diary.json") 
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('JSONファイルを読み込めませんでした。ステータス: ' + response.status);
+        }
+        return response.json(); 
+    })
+    .then(data => {
+        diaryData = data;
+        diaryData.forEach(entry => {
+            diaryMap.set(entry.date, entry);
+        });
 
-        if (diaryData.length > 0) {
-            displayDiaryEntry(diaryData[0].date);
-        } else {
-            document.getElementById("news-area").innerHTML = `<article class="entry"><h2>日記データがありません。</h2><div class="content">日記ファイル(diary.json)にデータが記述されていません。</div></article>`;
-        }
+        if (diaryData.length > 0) {
+            displayDiaryEntry(diaryData[0].date);
+        } else {
+            document.getElementById("news-area").innerHTML = `<article class="entry"><h2>日記データがありません。</h2><div class="content">日記ファイル(diary.json)にデータが記述されていません。</div></article>`;
+        }
 
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    })
-    .catch(err => {
-        const area = document.getElementById("news-area");
-        area.innerHTML = `<p style="color: red; font-weight: bold;">日記データファイルを読み込めませんでした。GitHub上のファイル名(diary.json)とJSON形式を確認してください。</p>`;
-        console.error("JSONデータの読み込みまたは解析に失敗:", err);
-    });
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    })
+    .catch(err => {
+        const area = document.getElementById("news-area");
+        area.innerHTML = `<p style="color: red; font-weight: bold;">日記データファイルを読み込めませんでした。GitHub上のファイル名(diary.json)とJSON形式を確認してください。</p>`;
+        console.error("JSONデータの読み込みまたは解析に失敗:", err);
+    });
 
-// (以下、各関数は変更なしのため省略。完全版は前回提示しています。)
-function displayDiaryEntry(date) { /* ... */ }
+function displayDiaryEntry(date) { 
+    const entry = diaryMap.get(date);
+    const area = document.getElementById("news-area");
+    if (entry) {
+        area.innerHTML = `<article class="entry"><h2>${entry.date} ${entry.title}</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+    } else {
+        area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
+    }
+    updateSelectedDay(date);
+}
+
 function renderCalendar(year, month) {
     const calendarArea = document.getElementById('calendar-area');
     const firstDayOfMonth = new Date(year, month, 1).getDay(); 
