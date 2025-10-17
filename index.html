@@ -1,0 +1,172 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>聖桜高校 女子バスケ物語</title>
+<style>
+/* CSSは変更なし */
+:root{
+  --accent:#87CEFA;
+  --bg:#ffffff;
+  --text:#111;
+  --maxwidth:1080px; /* 💡 修正点: サイト全体の幅を適度に狭くし、中央寄せを調整 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Hiragino Kaku Gothic Pro","Noto Sans JP",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+header{
+  width:100%;
+  text-align:center;
+  background:#fff;
+  border-bottom:4px solid var(--accent);
+}
+header img{max-width:100%;height:auto;display:block;margin:0 auto}
+
+.wrap{
+  max-width:var(--maxwidth);
+  margin:0 auto;
+  padding:20px 16px;
+  display:flex; 
+  flex-wrap:wrap;
+  /* gap:20px; 💡 gapは削除し、.sideにマージンで調整 */
+}
+
+.main{
+  flex:0 0 500px; /* 💡 修正点: 日記エリアの幅を固定（左側カラム）*/
+  background:#fff;
+  border-radius:8px;
+  padding:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+.main h1{
+  font-size:1.4rem;
+  margin-bottom:14px;
+  color:var(--accent);
+}
+.entry{
+  border-bottom:1px solid #eee;
+  padding:12px 0;
+}
+.entry h2{
+  font-size:1.1rem;
+  color:#333;
+  margin-bottom:6px;
+}
+.entry .meta{
+  font-size:0.85rem;
+  color:#666;
+  margin-bottom:8px;
+}
+.entry .content{font-size:0.95rem;white-space:pre-wrap}
+
+.side{
+  flex:1; /* 💡 修正点: 残りのスペースを柔軟に使い、画像を中央に配置 */
+  min-width: 300px; /* 💡 修正点: 画像のサイズに合わせて最低限の幅を確保 */
+  text-align:center;
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0;
+}
+.side img{
+  /* 💡 修正点: 画像の幅を約50%（300px -> 150px）に縮小 */
+  width: 150px; 
+  height:auto;
+  display:block;
+  margin:0 auto 10px auto;
+  border-radius: 8px; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+}
+
+/* 💡 修正点: right-content のCSSは削除 */
+
+footer{
+  margin-top:30px;
+  padding:14px;
+  background:#f8f8f8;
+  border-top:2px solid var(--accent);
+  font-size:0.85rem;
+  color:#555;
+  text-align:center;
+}
+footer a{color:var(--accent);font-weight:600;text-decoration:none}
+
+@media (max-width:900px){ /* 💡 修正点: レスポンシブのブレークポイントも調整 */
+  .wrap { flex-direction: column; align-items: center; }
+  .main { order: 2; flex-basis: auto; width: 100%; max-width: 600px; }
+  .side { order: 1; flex-basis: auto; width: 100%; }
+}
+</style>
+</head>
+<body>
+<header>
+                <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
+</header>
+
+<div style="text-align:center; margin:10px 0;">
+  <div id="welcome-text" style="font-size: 18px; font-weight: bold; color: #111; background-color: #cce7ff; padding: 8px 12px; border-radius: 6px; border: 1px solid #99ccff; display:inline-block;">ようこそ！</div>
+</div>
+
+<div class="wrap">
+    <main class="main">
+            <h1>今日の明日香の日記</h1>
+    <div id="news-area">読み込み中です…</div>
+    <p style="margin-top: 15px;"><a href="past.html">過去の日記を見る</a></p>
+  </main>
+  
+  <aside class="side">
+        <img src="asukasakurai.jpg" alt="桜井明日香" />
+    <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
+  </aside>
+
+  </div>
+<script>
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, "0");
+const dd = String(today.getDate()).padStart(2, "0");
+const 表示日付 = `${yyyy}-${mm}-${dd}`;
+
+fetch("diary.txt")
+  .then(r => r.text())
+  .then(text => {
+    const area = document.getElementById("news-area");
+    area.innerHTML = "";
+    const lines = text.split("\n").map(l => l.trim()).filter(l => l && l.includes("|"));
+    let found = false;
+    for (const line of lines) {
+      const [date, body] = line.split("|", 2);
+      if (date === 表示日付) {
+        area.innerHTML = `<article class="entry">
+          <h2>${date} の日記</h2>
+          <div class="content">${body || "本文なし"}</div>
+        </article>`;
+        found = true;
+        break;
+      }
+    }
+    if (!found) area.innerText = "今日の日記はありません。";
+  })
+  .catch(err => {
+    const area = document.getElementById("news-area");
+    area.innerText = "記事を読み込めませんでした。";
+    console.error(err);
+  });
+</script>
+
+<footer>
+  <p>© 2025 聖桜高校 女子バスケ物語 Project. 運営: 三鷹夢新聞</p>
+  <p style="margin-top: 5px; font-size: 0.8rem;">※このサイトはゲーム制作のため、架空の団体・人物を含みます。</p>
+</footer>
+
+</body> 
+</html>
