@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>聖桜高校 女子バスケ物語</title>
 <style>
-/* CSSは変更なし。コード量削減のため、以前提供したCSSをそのまま使用します。 */
+/* CSSは変更なし。前回提供したものをそのまま使用します。 */
 :root{
   --accent:#87CEFA;
   --bg:#ffffff;
@@ -28,7 +28,6 @@ header{
   background:#fff;
   border-bottom:4px solid var(--accent);
 }
-/* 💡 横断幕画像は seiodanmaku.png で参照 */
 header img{max-width:100%;height:auto;display:block;margin:0 auto}
 
 .wrap{
@@ -72,17 +71,17 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   justify-content: flex-start;
   padding: 20px 0;
 }
-/* 💡 桜井明日香画像は asukasakurai.jpg で参照 */
 .side img{
   width: 150px; 
   height:auto;
   display:block;
+  /* 💡 画像を中央に寄せるための修正 */
   margin:0 auto 10px auto;
   border-radius: 8px; 
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
-/* カレンダー関連のCSS (省略: 前回提供したものと同一) */
+/* カレンダー関連のCSS */
 .calendar-box { width: 100%; max-width: 300px; margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1.1rem; font-weight: bold; color: var(--accent); }
 .calendar-header button { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--accent); padding: 0 5px; outline: none; }
@@ -91,6 +90,12 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
 .calendar-table th { background: #eef; color: #555; }
 .has-diary { font-weight: bold; color: var(--text) !important; background: #fff9e6; cursor: pointer; }
 .selected-day { background: var(--accent) !important; color: #fff !important; border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+/* 💡 当日を表すスタイルを追加 */
+.today { 
+    border: 2px solid orange !important; 
+    font-weight: bold;
+    background-color: #fffae6;
+}
 .calendar-table td:first-child { color: red; } 
 .calendar-table td:last-child { color: blue; } 
 
@@ -139,21 +144,17 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </div>
 <script>
 // =======================================================
-// JSONデータとカレンダー表示のCGIもどきロジック
+// JSONデータとカレンダー表示のロジック
 // =======================================================
 
 let diaryData = []; 
 let diaryMap = new Map(); 
 let currentDate = new Date(); 
 
-/**
- * サイト読み込み時処理：JSONデータを取得し、マップに変換
- * 💡 日記ファイル名を 'diary.json' に確定
- */
+// 💡 JSONファイル名が 'diary.json' であることを前提にfetch
 fetch("diary.json") 
     .then(response => {
         if (!response.ok) {
-            // ファイルが存在しない、または読み込みエラー
             throw new Error('JSONファイルを読み込めませんでした。ステータス: ' + response.status);
         }
         return response.json(); 
@@ -166,25 +167,18 @@ fetch("diary.json")
 
         // ページロード時、最新の日記を表示
         if (diaryData.length > 0) {
-            // 最新の日記がある場合は、最新の日記を表示
             displayDiaryEntry(diaryData[0].date);
         } else {
-            // 日記データが空の場合は、カレンダーのみ表示
             document.getElementById("news-area").innerHTML = `<article class="entry"><h2>日記データがありません。</h2><div class="content">日記ファイル(diary.json)にデータが記述されていません。</div></article>`;
         }
 
-        // カレンダーを初期表示
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
     })
     .catch(err => {
         const area = document.getElementById("news-area");
-        // ファイル名が間違っている可能性をユーザーに伝える
-        area.innerHTML = `<p style="color: red;">日記データファイルを読み込めませんでした。ファイル名(diary.json)とJSON形式を確認してください。</p>`;
+        area.innerHTML = `<p style="color: red; font-weight: bold;">日記データファイルを読み込めませんでした。GitHub上のファイル名(diary.json)とJSON形式を確認してください。</p>`;
         console.error("JSONデータの読み込みまたは解析に失敗:", err);
     });
-
-// (以下、displayDiaryEntry, renderCalendar, changeMonth などの関数は変更なしのため省略)
-// ※ 便宜上、関数定義はすべて含めます。
 
 function displayDiaryEntry(date) {
     const entry = diaryMap.get(date);
@@ -209,7 +203,7 @@ function renderCalendar(year, month) {
     const firstDayOfMonth = new Date(year, month, 1).getDay(); 
     const daysInMonth = new Date(year, month + 1, 0).getDate(); 
     const today = new Date();
-    const currentDayKey = formatDate(today);
+    const currentDayKey = formatDate(today); // 'YYYY-MM-DD'形式の今日の日付
 
     let html = '';
     
@@ -264,16 +258,25 @@ function renderCalendar(year, month) {
     }
 }
 
+/**
+ * 1日分のHTMLセルを生成する
+ */
 function createDayCell(year, month, day, currentDayKey) {
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     let className = '';
     
+    // 💡 当日判定
+    if (dateKey === currentDayKey) {
+        className += ' today';
+    }
+    // 日記が存在するかチェック
     if (diaryMap.has(dateKey)) {
         className += ' has-diary';
     }
 
     return `<td class="${className}" data-date="${dateKey}" onclick="handleDayClick('${dateKey}')">${day}</td>`;
 }
+
 
 function changeMonth(delta) {
     currentDate.setMonth(currentDate.getMonth() + delta);
@@ -301,6 +304,7 @@ function formatDate(date) {
     const dd = String(date.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
 }
+
 </script>
 
 <footer>
