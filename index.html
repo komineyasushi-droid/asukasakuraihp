@@ -174,11 +174,11 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
       /* .sideにtext-align:centerがあるため、これは不要ですが、念のため残します */
       margin: 0 auto 30px auto !important;
   }
-  
-  /* .side img の中央寄せを確実に（display: block; + margin: auto;で既にOK） */
-  .side img {
-      margin: 30px auto 10px auto !important;
-  }
+  
+  /* .side img の中央寄せを確実に（display: block; + margin: auto;で既にOK） */
+  .side img {
+      margin: 30px auto 10px auto !important;
+  }
 
   /* main (日記本文エリア) */
   .main { 
@@ -193,7 +193,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
+        <img src="seiodanmaku.png" alt="聖桜高校 女子バスケ物語 ロゴ" />
 </header>
 
 <div class="wrap">
@@ -214,7 +214,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
       <p style="margin-top: 20px; font-weight: bold;">日付をクリックして日記を読み込めます</p>
     </div>
     
-    <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px;" />
+    <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px; max-width: 100%; height: auto; display: block; min-width: 0;" />
     <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
 
   </aside>
@@ -381,7 +381,7 @@ fetch("diary.json") 
     .catch(err => {
         const area = document.getElementById("news-area");
         // JSON読み込み失敗時のメッセージ
-        area.innerHTML = `<p style="color: red; font-weight: bold;">日記データファイル(diary.json)の読み込みに失敗しました。ファイル名と形式を確認してください。</p>`;
+        area.innerHTML = `<p style="color: red; font-weight: bold;">日記データファイル(diary.json)の読み込みに失敗しました。</p>`;
         console.error("JSONデータの読み込みまたは解析に失敗:", err);
         // エラー時もカレンダーだけは表示
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
