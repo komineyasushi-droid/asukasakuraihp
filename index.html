@@ -8,9 +8,9 @@
 /* CSSの変更を反映しました */
 :root{
   --accent:#87CEFA;
-  --bg:#ffffff; /* ✅ 修正点: past.htmlに合わせて白色に変更 */
+  --bg:#ffffff;
   --text:#111;
-  --maxwidth:800px; /* ✅ 修正点: past.htmlに合わせて800pxに変更 */
+  --maxwidth:800px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -24,16 +24,12 @@ body{
 
 header{
   width:100%;
+  /* text-align:center は残し、中央寄せを維持 */
   text-align:center;
   background:#fff;
   border-bottom:4px solid var(--accent);
 }
-/* 💡 修正点: header img の CSSは変更なし（HTML属性に依存） */
-header img{
-    height:auto;
-    display:block;
-    margin:0 auto;
-}
+/* ✅ 修正点: header img の CSSを削除 */
 
 
 .wrap{
@@ -45,7 +41,6 @@ header img{
 }
 
 .main{
-  /* ✅ 修正点: flexの固定サイズを削除し、サイドバーと自動調整させる */
   background:#fff;
   border-radius:8px;
   padding:20px;
@@ -84,7 +79,6 @@ header img{
 
 .side{
   flex:1;
-  /* min-widthを削除し、mainの横にスペースが空くようにする */
   text-align:center; /* 💡 画像と文字を中央寄せ */
   display: block;  
   padding: 20px 0;
@@ -176,8 +170,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-        <img src="seiodanmaku.png?v=2" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
-</header>
+    </header>
 
 <div class="wrap">
     <main class="main">
