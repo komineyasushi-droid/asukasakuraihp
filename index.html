@@ -28,16 +28,15 @@ header{
   background:#fff;
   border-bottom:4px solid var(--accent);
 }
+/* 💡 修正点: header img の CSSを全て削除し、HTML属性に依存させる */
 header img{
-    /* 💡 修正点: 横断幕の最大幅を35%に制限。これで「でかい」問題を解消 */
-    max-width: 35%; 
-    width: auto; 
-    /* 🌟 横断幕の最大高さを35pxに設定 */
-    max-height: 35px; 
+    /* 💡 HTMLでサイズが固定されるため、CSSのサイズ指定を全て削除 */
+    /* 💡 ただし、中央寄せは維持 */
     height:auto;
     display:block;
     margin:0 auto;
 }
+
 
 .wrap{
   max-width:var(--maxwidth);
@@ -179,7 +178,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-    <img src="seiodanmaku.png" alt="聖桜高校 女子バスケ物語 ロゴ" />
+        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
 </header>
 
 <div class="wrap">
