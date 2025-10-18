@@ -134,34 +134,31 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-/* 💡 スマホでのレイアウト調整（中央寄せをより厳密に強制） */
+/* 💡 最終修正: スマホでのレイアウト調整（!importantで強制中央寄せ） */
 /* 22行目からこのブロックが始まります */
 @media (max-width:900px){ 
   /* wrap (メインとサイドバーの親要素) */
   .wrap { 
       flex-direction: column; 
-      align-items: center; /* メインとサイドバーのボックス自体を中央に寄せる */
+      align-items: center !important; /* wrap自体の中央寄せを強制 */
   }
   
   /* side (画像とカレンダーのエリア) - 中央寄せの主因 */
   .side { 
       order: 1; 
       flex-basis: auto; 
-      width: 100%; 
+      width: 100% !important; /* 幅を確保しつつ */
       
-      /* 💡 修正点1: PC版の min-width を無効化し、スマホ幅を確保 */
-      min-width: 0; 
-
-      /* 💡 修正点2: .side の幅を制限し、margin: auto で中央に固定 */
-      max-width: 350px; 
-      margin-left: auto; 
-      margin-right: auto;
+      /* 💡 修正点: min-widthを無効化し、margin: auto を強制適用 */
+      min-width: 0 !important; 
+      max-width: 350px !important; 
+      margin-left: auto !important; 
+      margin-right: auto !important;
       
-      /* 内部要素を中央に寄せるためのFlex設定 */
-      align-items: center; 
-      justify-content: center;
-      
-      /* 💡 追加: 見栄えのためにpaddingを調整 */
+      /* 内部要素を中央に寄せるためのFlex設定を強制 */
+      align-items: center !important; 
+      justify-content: center !important;
+      
       padding-top: 20px;
       padding-bottom: 20px;
   }
@@ -172,7 +169,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
       flex-basis: auto; 
       width: 100%; 
       max-width: 600px; 
-      margin-top: 20px; /* 見栄えのために少し上部マージンを追加 */
+      margin-top: 20px;
   }
 }
 </style>
@@ -242,7 +239,7 @@ function displayDiaryEntry(date) { 
 
     if (entry) {
         // 💡 明日香の一人称が「ボク」であることを意識した応答（CSS修正のため内容はそのまま）
-        area.innerHTML = `<article class="entry"><h2>${entry.title}</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記)</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
     } else {
         area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
     }
