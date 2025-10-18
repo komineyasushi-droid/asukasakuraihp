@@ -1,11 +1,4 @@
-﻿<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>聖桜高校 女子バスケ物語</title>
-<style>
-/* CSSの変更を反映しました */
+﻿/* CSSの変更を反映しました */
 :root{
   --accent:#87CEFA;
   --bg:#e6f3ff; /* 💡 修正点1: 目に優しい青色系の背景色（薄い水色）*/
@@ -28,7 +21,14 @@ header{
   background:#fff;
   border-bottom:4px solid var(--accent);
 }
-header img{max-width:100%;height:auto;display:block;margin:0 auto}
+header img{
+    /* 💡 修正点1: ヘッダーロゴの最大高さを設定。幅は自動で調整 */
+    max-width:100%;
+    max-height: 120px; /* 例えば、最大高さを120pxに設定 */
+    height:auto;
+    display:block;
+    margin:0 auto
+}
 
 .wrap{
   max-width:var(--maxwidth);
@@ -87,12 +87,14 @@ header img{max-width:100%;height:auto;display:block;margin:0 auto}
   padding: 20px 0;
 }
 .side img{
-  width: 150px; 
-  height:auto;
-  display:block;
-  margin:0 auto 10px auto;
-  border-radius: 8px; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    /* 💡 修正点2: 明日香の画像をレスポンシブに。最大幅を制限しつつ、画面幅に合わせて縮小 */
+    max-width: 150px; /* 元の幅を最大値として設定 */
+    width: 100%; /* 親要素の幅に合わせて縮小できるようにする */
+    height:auto;
+    display:block;
+    margin:0 auto 10px auto;
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
 
 /* カレンダー関連のCSS */
@@ -135,7 +137,6 @@ footer{
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
 /* 💡 最終修正: スマホでのレイアウト調整（!importantで強制中央寄せ） */
-/* 22行目からこのブロックが始まります */
 @media (max-width:900px){ 
   /* wrap (メインとサイドバーの親要素) */
   .wrap { 
