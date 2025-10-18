@@ -24,12 +24,14 @@ body{
 
 header{
   width:100%;
-  /* text-align:center は残し、中央寄せを維持 */
   text-align:center;
   background:#fff;
   border-bottom:4px solid var(--accent);
+  /* ✅ キャッシュ対策: 高さを強制的に確保し、もし画像が残っても目立たなくする */
+  padding: 10px 0; 
+  height: auto; 
+  min-height: 50px; 
 }
-/* ✅ 修正点: header img の CSSを削除 */
 
 
 .wrap{
@@ -170,7 +172,8 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-    </header>
+        <div style="color: var(--accent); font-size: 1.2rem; font-weight: bold;">聖桜高校 女子バスケ物語 （ヘッダー）</div>
+</header>
 
 <div class="wrap">
     <main class="main">
