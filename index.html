@@ -88,7 +88,7 @@ header img{
   flex:1;
   min-width: 300px;
   text-align:center; /* 💡 画像と文字を中央寄せ */
-  display: block;  
+  display: block;  
   padding: 20px 0;
 }
 .side img{
@@ -251,7 +251,7 @@ function displayDiaryEntry(date) { 
 
     if (entry) {
         // 💡 明日香の一人称が「ボク」であることを意識した応答（CSS修正のため内容はそのまま）
-        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記) </h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記) </h2><div class="content">${entry.body || "本文なし"}</div></article>`;
     } else {
         area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
     }
