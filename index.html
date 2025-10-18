@@ -1,4 +1,11 @@
-﻿/* CSSの変更を反映しました */
+﻿<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>聖桜高校 女子バスケ物語</title>
+<style>
+/* CSSの変更を反映しました */
 :root{
   --accent:#87CEFA;
   --bg:#e6f3ff; /* 💡 修正点1: 目に優しい青色系の背景色（薄い水色）*/
@@ -79,11 +86,9 @@ header img{
 .side{
   flex:1;
   min-width: 300px;
-  text-align:center;
-  display: flex; 
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  text-align:center; /* 💡 最終修正点: 内部要素を中央寄せ */
+  display: block;  /* 💡 最終修正点: Flexboxを止めて block に変更 */
+  /* flex-direction, align-items, justify-content は削除 */
   padding: 20px 0;
 }
 .side img{
@@ -136,33 +141,44 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-/* 💡 最終修正: スマホでのレイアウト調整（!importantで強制中央寄せ） */
+/* 💡 最終修正: Flexboxを止め、text-alignとmargin:autoで強制中央寄せ */
 @media (max-width:900px){ 
   /* wrap (メインとサイドバーの親要素) */
   .wrap { 
       flex-direction: column; 
-      align-items: center !important; /* wrap自体の中央寄せを強制 */
+      align-items: center; /* メインとサイドバーのボックス自体を中央に寄せる */
   }
   
   /* side (画像とカレンダーのエリア) - 中央寄せの主因 */
   .side { 
       order: 1; 
       flex-basis: auto; 
-      width: 100% !important; /* 幅を確保しつつ */
+      width: 100%; 
       
-      /* 💡 修正点: min-widthを無効化し、margin: auto を強制適用 */
+      /* 💡 修正点: min-widthを無効化し、margin: auto で中央に固定 */
       min-width: 0 !important; 
       max-width: 350px !important; 
       margin-left: auto !important; 
       margin-right: auto !important;
       
-      /* 内部要素を中央に寄せるためのFlex設定を強制 */
-      align-items: center !important; 
-      justify-content: center !important;
+      /* Flexboxでの内部要素中央寄せは不要（.sideにtext-align:centerがあるため） */
+      /* align-items: center !important; */
+      /* justify-content: center !important; */
       
       padding-top: 20px;
       padding-bottom: 20px;
   }
+  
+  /* .calendar-box の中央寄せを確実に */
+  .calendar-box {
+      /* .sideにtext-align:centerがあるため、これは不要ですが、念のため残します */
+      margin: 0 auto 30px auto !important;
+  }
+  
+  /* .side img の中央寄せを確実に（display: block; + margin: auto;で既にOK） */
+  .side img {
+      margin: 30px auto 10px auto !important;
+  }
 
   /* main (日記本文エリア) */
   .main { 
@@ -240,7 +256,7 @@ function displayDiaryEntry(date) { 
 
     if (entry) {
         // 💡 明日香の一人称が「ボク」であることを意識した応答（CSS修正のため内容はそのまま）
-        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記)</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記)</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
     } else {
         area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
     }
