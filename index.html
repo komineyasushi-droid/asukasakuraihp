@@ -8,9 +8,9 @@
 /* CSSの変更を反映しました */
 :root{
   --accent:#87CEFA;
-  --bg:#e6f3ff; /* 💡 目に優しい青色系の背景色（薄い水色）*/
+  --bg:#ffffff; /* ✅ 修正点: past.htmlに合わせて白色に変更 */
   --text:#111;
-  --maxwidth:1080px; 
+  --maxwidth:800px; /* ✅ 修正点: past.htmlに合わせて800pxに変更 */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -28,10 +28,8 @@ header{
   background:#fff;
   border-bottom:4px solid var(--accent);
 }
-/* 💡 修正点: header img の CSSを全て削除し、HTML属性に依存させる */
+/* 💡 修正点: header img の CSSは変更なし（HTML属性に依存） */
 header img{
-    /* 💡 HTMLでサイズが固定されるため、CSSのサイズ指定を全て削除 */
-    /* 💡 ただし、中央寄せは維持 */
     height:auto;
     display:block;
     margin:0 auto;
@@ -47,7 +45,7 @@ header img{
 }
 
 .main{
-  flex:0 0 300px; 
+  /* ✅ 修正点: flexの固定サイズを削除し、サイドバーと自動調整させる */
   background:#fff;
   border-radius:8px;
   padding:20px;
@@ -86,7 +84,7 @@ header img{
 
 .side{
   flex:1;
-  min-width: 300px;
+  /* ✅ 修正点: min-widthを削除し、mainの横にスペースが空くようにする */
   text-align:center; /* 💡 画像と文字を中央寄せ */
   display: block;  
   padding: 20px 0;
@@ -178,7 +176,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-        <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
+    <img src="seiodanmaku.png" width="150" height="150" alt="聖桜高校 女子バスケ物語 ロゴ" />
 </header>
 
 <div class="wrap">
@@ -195,7 +193,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
   
   <aside class="side">
             
-        <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px; max-width: 100%; height: auto; display: block; min-width: 0;" />
+        <img src="asukasakurai.jpg" alt="桜井明日香" style="margin-top: 30px; max-width: 100%; height: auto; display: block; min-width: 0;" />
     <div style="font-size: 0.9rem; color: #555;">聖桜高校 女子バスケ部エース</div>
     
         <div id="calendar-area" class="calendar-box">
