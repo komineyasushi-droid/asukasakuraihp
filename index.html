@@ -134,29 +134,45 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-/* 💡 修正後のCSSブロック (22行目から開始) */
+/* 💡 スマホでのレイアウト調整（中央寄せをより厳密に強制） */
+/* 22行目からこのブロックが始まります */
 @media (max-width:900px){ 
+  /* wrap (メインとサイドバーの親要素) */
   .wrap { 
-    flex-direction: column; 
-    align-items: center; /* メインとサイドを中央に寄せる */
+      flex-direction: column; 
+      align-items: center; /* メインとサイドバーのボックス自体を中央に寄せる */
   }
-  .main { 
-    order: 2; 
-    flex-basis: auto; 
-    width: 100%; 
-    max-width: 600px; 
-  }
+  
+  /* side (画像とカレンダーのエリア) - 中央寄せの主因 */
   .side { 
-    order: 1; 
-    flex-basis: auto; 
-    width: 100%; 
-    /* 💡 内部の要素を中央に寄せるための設定を強化 */
-    align-items: center; 
-    justify-content: center;
-    /* 💡 .side 自体に max-width を設定して、無駄に広がらないようにする */
-    max-width: 350px; /* カレンダーの幅（300px）より少し大きく設定 */
-    margin-left: auto; /* 親要素内で中央寄せ */
-    margin-right: auto; /* 親要素内で中央寄せ */
+      order: 1; 
+      flex-basis: auto; 
+      width: 100%; 
+      
+      /* 💡 修正点1: PC版の min-width を無効化し、スマホ幅を確保 */
+      min-width: 0; 
+
+      /* 💡 修正点2: .side の幅を制限し、margin: auto で中央に固定 */
+      max-width: 350px; 
+      margin-left: auto; 
+      margin-right: auto;
+      
+      /* 内部要素を中央に寄せるためのFlex設定 */
+      align-items: center; 
+      justify-content: center;
+      
+      /* 💡 追加: 見栄えのためにpaddingを調整 */
+      padding-top: 20px;
+      padding-bottom: 20px;
+  }
+
+  /* main (日記本文エリア) */
+  .main { 
+      order: 2; 
+      flex-basis: auto; 
+      width: 100%; 
+      max-width: 600px; 
+      margin-top: 20px; /* 見栄えのために少し上部マージンを追加 */
   }
 }
 </style>
