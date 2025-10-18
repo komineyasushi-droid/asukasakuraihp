@@ -32,7 +32,7 @@ header img{
     /* 💡 ヘッダーロゴの最大高さを設定。幅は自動で調整 */
     max-width:100%;
     /* 🌟 横断幕の最大高さを35pxに設定 */
-    max-height: 35px; 
+    max-height: 35px; 
     height:auto;
     display:block;
     margin:0 auto
@@ -93,7 +93,7 @@ header img{
 }
 .side img{
     /* 🌟 明日香の画像を20%大きく（150px -> 180px） */
-    max-width: 180px; 
+    max-width: 180px; 
     width: 100%; /* 親要素の幅に合わせて縮小できるようにする */
     height:auto;
     display:block;
@@ -141,47 +141,37 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-/* 💡 スマホ表示（900px以下）の調整 */
+/* 💡 スマホ表示（900px以下）の調整：日記とサイドバーの幅を統一し、中央寄せを確実にする */
 @media (max-width:900px){ 
-  /* wrap (メインとサイドバーの親要素) */
+  /* 💡 修正点：親要素のラップは中央寄せを維持 */
   .wrap { 
-      flex-direction: column; 
-      align-items: center; /* メインとサイドバーのボックス自体を中央に寄せる */
+    flex-direction: column; 
+    align-items: center; 
+    /* PCで見えていた左右の余白を維持 */
+    padding: 10px 10px; 
   }
   
-  /* side (画像とカレンダーのエリア) - 中央寄せを優先 */
-  .side { 
-      order: 1;  /* 画面上部に表示 */
-      flex-basis: auto; 
-      width: 100%; 
-      
-      /* 中央寄せのための調整 */
-      min-width: 0 !important; 
-      max-width: 350px !important; 
-      margin-left: auto !important; 
-      margin-right: auto !important;
-      
-      padding-top: 20px;
-      padding-bottom: 20px;
-  }
-  
-  /* .calendar-box の中央寄せを確実に */
-  .calendar-box {
-      margin: 0 auto 30px auto !important;
-  }
-  
-  /* .side img の中央寄せを確実に */
-  .side img {
-      margin: 30px auto 10px auto !important;
-  }
-
-  /* main (日記本文エリア) */
+  /* 💡 修正点：日記エリア（.main）の幅をカレンダーに強制的に統一 */
   .main { 
-      order: 2;  /* 画像/カレンダーの下に表示 */
-      flex-basis: auto; 
-      width: 100%; 
-      max-width: 600px; 
-      margin-top: 20px;
+    order: 2; 
+    flex-basis: auto; 
+    width: 100%; 
+    max-width: 350px; /* カレンダー・画像と幅を合わせる */
+    margin-left: auto; /* 中央寄せを確実に */
+    margin-right: auto; /* 中央寄せを確実に */
+  }
+  
+  /* 💡 サイドバー（.side）の中央寄せと幅制限を維持 */
+  .side { 
+    order: 1; 
+    flex-basis: auto; 
+    width: 100%; 
+    align-items: center; 
+    justify-content: center;
+    max-width: 350px; 
+    margin-left: auto; 
+    margin-right: auto;
+    padding: 10px 0; /* パディングを少し減らして縦の隙間を調整 */
   }
 }
 </style>
