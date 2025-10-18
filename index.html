@@ -29,16 +29,14 @@ header{
   border-bottom:4px solid var(--accent);
 }
 header img{
-    /* 💡 ヘッダーロゴの最大高さを設定。幅は自動で調整 */
-    max-width:35%;
+    /* 💡 修正点: 横断幕の最大幅を35%に制限。これで「でかい」問題を解消 */
+    max-width: 35%; 
+    width: auto; 
     /* 🌟 横断幕の最大高さを35pxに設定 */
     max-height: 35px; 
     height:auto;
     display:block;
     margin:0 auto;
-
-    /* 💡 修正点: 横断幕の幅を50%に制限し、中央寄せ */
-    width: 50%; /* ここを追加しました */
 }
 
 .wrap{
@@ -181,7 +179,7 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
 </head>
 <body>
 <header>
-        <img src="seiodanmaku.png" alt="聖桜高校 女子バスケ物語 ロゴ" />
+    <img src="seiodanmaku.png" alt="聖桜高校 女子バスケ物語 ロゴ" />
 </header>
 
 <div class="wrap">
@@ -243,7 +241,7 @@ function displayDiaryEntry(date) { 
     document.querySelector('.main h1').textContent = `${date}の明日香の日記`; 
 
     if (entry) {
-        // 💡 明日香の一人称が「ボク」であることを意識した応答（CSS修正のため内容はそのまま）
+        // 💡 明日香の一人称が「ボク」であることを意識した応答
         area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記) </h2><div class="content">${entry.body || "本文なし"}</div></article>`;
     } else {
         area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
