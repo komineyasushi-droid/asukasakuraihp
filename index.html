@@ -8,7 +8,7 @@
 /* CSSの変更を反映しました */
 :root{
   --accent:#87CEFA;
-  --bg:#e6f3ff; /* 💡 修正点1: 目に優しい青色系の背景色（薄い水色）*/
+  --bg:#e6f3ff; /* 💡 目に優しい青色系の背景色（薄い水色）*/
   --text:#111;
   --maxwidth:1080px; 
 }
@@ -29,10 +29,10 @@ header{
   border-bottom:4px solid var(--accent);
 }
 header img{
-    /* 💡 修正点1: ヘッダーロゴの最大高さを設定。幅は自動で調整 */
+    /* 💡 ヘッダーロゴの最大高さを設定。幅は自動で調整 */
     max-width:100%;
-    /* 🌟 再修正: 横断幕の最大高さを75pxに設定（明日香の画像150pxの50%） */
-    max-height: 75px; 
+    /* 🌟 横断幕の最大高さを35pxに設定 */
+    max-height: 35px; 
     height:auto;
     display:block;
     margin:0 auto
@@ -62,7 +62,7 @@ header img{
 }
 #news-area {
     padding: 10px;
-    background-color: #f0f8ff; /* 💡 修正点2: 日記エリアの背景色も目に優しい薄い青に調整 */
+    background-color: #f0f8ff; /* 💡 日記エリアの背景色も目に優しい薄い青に調整 */
     border: 1px solid #cceeff;
     border-radius: 4px;
     margin-bottom: 15px;
@@ -77,7 +77,7 @@ header img{
   color:#333;
   margin-bottom:6px;
 }
-/* 💡 修正点3: 日記本文のフォントサイズをスマホ平均（16px=1rem）に調整 */
+/* 💡 日記本文のフォントサイズをスマホ平均（16px=1rem）に調整 */
 .entry .content{
     font-size: 1rem; /* PC版より少し大きく */
     line-height: 1.8; /* 行間も広げて読みやすく */
@@ -87,18 +87,17 @@ header img{
 .side{
   flex:1;
   min-width: 300px;
-  text-align:center; /* 💡 最終修正点: 内部要素を中央寄せ */
-  display: block;  /* 💡 最終修正点: Flexboxを止めて block に変更 */
-  /* flex-direction, align-items, justify-content は削除 */
+  text-align:center; /* 💡 画像と文字を中央寄せ */
+  display: block;  
   padding: 20px 0;
 }
 .side img{
-    /* 💡 修正点2: 明日香の画像をレスポンシブに。最大幅を制限しつつ、画面幅に合わせて縮小 */
-    max-width: 150px; /* 元の幅を最大値として設定 */
+    /* 🌟 明日香の画像を20%大きく（150px -> 180px） */
+    max-width: 180px; 
     width: 100%; /* 親要素の幅に合わせて縮小できるようにする */
     height:auto;
     display:block;
-    margin:0 auto 10px auto;
+    margin:0 auto 10px auto; /* 💡 中央寄せ */
     border-radius: 8px; 
     box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
 }
@@ -107,7 +106,7 @@ header img{
 .calendar-box { 
     width: 100%; 
     max-width: 300px; 
-    margin: 0 auto 30px auto; 
+    margin: 0 auto 30px auto;  /* 💡 中央寄せ */
     padding: 15px; 
     background: #fff; 
     border: 1px solid #ddd; 
@@ -142,7 +141,7 @@ footer{
 }
 footer a{color:var(--accent);font-weight:600;text-decoration:none}
 
-/* 💡 最終修正: Flexboxを止め、text-alignとmargin:autoで強制中央寄せ */
+/* 💡 スマホ表示（900px以下）の調整 */
 @media (max-width:900px){ 
   /* wrap (メインとサイドバーの親要素) */
   .wrap { 
@@ -150,21 +149,17 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
       align-items: center; /* メインとサイドバーのボックス自体を中央に寄せる */
   }
   
-  /* side (画像とカレンダーのエリア) - 中央寄せの主因 */
+  /* side (画像とカレンダーのエリア) - 中央寄せを優先 */
   .side { 
-      order: 1; 
+      order: 1;  /* 画面上部に表示 */
       flex-basis: auto; 
       width: 100%; 
       
-      /* 💡 修正点: min-widthを無効化し、margin: auto で中央に固定 */
+      /* 中央寄せのための調整 */
       min-width: 0 !important; 
       max-width: 350px !important; 
       margin-left: auto !important; 
       margin-right: auto !important;
-      
-      /* Flexboxでの内部要素中央寄せは不要（.sideにtext-align:centerがあるため） */
-      /* align-items: center !important; */
-      /* justify-content: center !important; */
       
       padding-top: 20px;
       padding-bottom: 20px;
@@ -172,18 +167,17 @@ footer a{color:var(--accent);font-weight:600;text-decoration:none}
   
   /* .calendar-box の中央寄せを確実に */
   .calendar-box {
-      /* .sideにtext-align:centerがあるため、これは不要ですが、念のため残します */
       margin: 0 auto 30px auto !important;
   }
   
-  /* .side img の中央寄せを確実に（display: block; + margin: auto;で既にOK） */
+  /* .side img の中央寄せを確実に */
   .side img {
       margin: 30px auto 10px auto !important;
   }
 
   /* main (日記本文エリア) */
   .main { 
-      order: 2; 
+      order: 2;  /* 画像/カレンダーの下に表示 */
       flex-basis: auto; 
       width: 100%; 
       max-width: 600px; 
@@ -257,7 +251,7 @@ function displayDiaryEntry(date) { 
 
     if (entry) {
         // 💡 明日香の一人称が「ボク」であることを意識した応答（CSS修正のため内容はそのまま）
-        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記)</h2><div class="content">${entry.body || "本文なし"}</div></article>`;
+        area.innerHTML = `<article class="entry"><h2>${entry.title}  (ボクの日記) </h2><div class="content">${entry.body || "本文なし"}</div></article>`;
     } else {
         area.innerHTML = `<article class="entry"><h2>${date} の日記</h2><div class="content">この日の日記はまだありません。</div></article>`;
     }
