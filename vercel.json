@@ -1,0 +1,7 @@
+﻿{
+  "build": {
+    "src": "package.json",
+    "use": "@vercel/static-build",
+    "rootDirectory": "飛鳥日記"
+  }
+}
