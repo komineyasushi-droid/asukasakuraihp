@@ -1,8 +1,0 @@
-﻿    {
-      "build": {
-        "src": "asuka-diary/package.json",
-        "use": "@vercel/static-build",
-        "rootDirectory": "asuka-diary"
-      }
-    }
-    
