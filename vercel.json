@@ -1,8 +1,15 @@
-﻿    {
-      "build": {
-        "src": "asuka-diary/package.json",
-        "use": "@vercel/static-build",
-        "rootDirectory": "asuka-diary"
-      }
-    }
-    
+﻿"scripts": {
+    "dev": "vite",
+    "build": "vite build",  <-- **この行が重要**
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+
+### 🌟 最後のデプロイ
+
+1.  上記**`vercel.json`**をリポジトリのトップに追加し、コミットします。
+2.  `package.json`の`scripts`セクションに`"build": "vite build"`があることを確認します。
+
+これでVercelは「`npm run build`を実行して、できたファイルを公開すればいいんだな」と理解し、デプロイが成功します！
+
+Vercelのデプロイが完了しましたら、あなたのVercelのURLをご確認ください！
