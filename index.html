@@ -1,13 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!-- 相対パスで読み込むように修正 -->
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" /> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>asuka-diary</title>
+    <title>明日香の日記</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- ここからFirebaseライブラリの読み込みを追加 -->
+    <!-- 1. Firebase App本体の読み込み -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      window.firebase = window.firebase || {};
+      window.firebase.initializeApp = initializeApp;
+    </script>
+    
+    <!-- 2. Firebase Auth (認証) の読み込み -->
+    <script type="module">
+      import * as Auth from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      window.firebase.auth = Auth;
+    </script>
+    
+    <!-- 3. Firebase Firestore (データベース) の読み込み -->
+    <script type="module">
+      import * as Firestore from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      window.firebase.firestore = Firestore;
+    </script>
+    <!-- ここまで追加 -->
+
+    <!-- 相対パスで読み込むように修正 -->
+    <script type="module" src="./src/main.jsx"></script>
   </body>
 </html>
