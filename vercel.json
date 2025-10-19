@@ -1,21 +1,8 @@
 ﻿    {
-      "version": 2,
-      "builds": [
-        {
-          "src": "package.json",
-          "use": "@vercel/static-build",
-          "config": {
-            "distDir": "dist"
-          }
-        }
-      ],
-      "routes": [
-        {
-          "src": "/(.*)",
-          "dest": "/asuka-diary/$1"
-        }
-      ],
-      "installCommand": "npm install --prefix ./asuka-diary",
-      "buildCommand": "npm run build --prefix ./asuka-diary"
+      "build": {
+        "src": "asuka-diary/package.json",
+        "use": "@vercel/static-build",
+        "rootDirectory": "asuka-diary"
+      }
     }
     
