@@ -33,7 +33,7 @@
               'main-color': '#B0E0E6',
               'accent-color': '#FF7F50', // 明るいアクセントカラー
               'dark-color': '#1F3F5F',
-              'owner-pink': '#EC4899', // ※ピンク警告回避のため、JSX側では直接使わない
+              'owner-pink': '#EC4899', // オーナー編集用のピンク (カスタム追加)
               'theme-blue': '#00AEEF',
             },
             boxShadow: {
@@ -46,6 +46,7 @@
     </script>
 </head>
 <body class="text-gray-900 min-h-screen pt-16">
+
     <div id="root">
         <p class="text-center text-lg mt-20">アプリをロード中... しばらくお待ちください。</p>
     </div>
@@ -58,8 +59,8 @@ const { getFirestore, doc, onSnapshot, setDoc } = firebase.firestore;
 const { useState, useEffect, useMemo, useCallback } = React;
 
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? JSON.parse(__initial_auth_token) : null; 
+const appId = typeof __app_id !== 'undefined' ? JSON.parse(__app_id) : 'default-app-id';
 
 let db, auth;
 if (Object.keys(firebaseConfig).length > 0) {
@@ -80,6 +81,7 @@ const COLORS = {
   main: '#B0E0E6',       // 淡い青 (清涼感)
   accent: '#FF7F50',     // 情熱のアクセントカラー (オレンジ/コーラル)
   dark: '#1F3F5F',       // 濃い青 (視認性)
+  ownerPink: '#EC4899',  // オーナー編集用のピンク (HEXコード)
 };
 
 const formatDate = (date) => {
@@ -188,7 +190,7 @@ const UserIdentification = ({ userName, setUserName, userId }) => {
         <div className="flex items-center space-x-3">
             {!isEditing ? (
                 <>
-                    <span className="text-white text-sm font-semibold p-1 px-3 bg-[#FF7F50] rounded-full shadow-md transition duration-300 whitespace-nowrap">
+                    <span className="text-white text-sm font-semibold p-1 px-3 bg-accent-color rounded-full shadow-md transition duration-300 whitespace-nowrap">
                         {welcomeMessage}
                     </span>
                     <button 
@@ -196,7 +198,7 @@ const UserIdentification = ({ userName, setUserName, userId }) => {
                             setInput(userName === GUEST_NAME ? '' : userName);
                             setIsEditing(true);
                         }}
-                        className="text-white text-xs hover:text-[#B0E0E6] transition duration-150"
+                        className="text-white text-xs hover:text-main-color transition duration-150"
                         title="ユーザー情報を変更"
                     >
                         [変更]
@@ -210,12 +212,12 @@ const UserIdentification = ({ userName, setUserName, userId }) => {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="名前またはメール"
-                        className="text-gray-800 text-sm p-1 border rounded focus:ring-[#FF7F50] focus:border-[#FF7F50] w-24 sm:w-32" 
+                        className="text-gray-800 text-sm p-1 border rounded focus:ring-accent-color focus:border-accent-color w-24 sm:w-32" 
                         onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
                     />
                     <button 
                         onClick={handleSave}
-                        className="bg-[#1F3F5F] text-white text-xs px-2 sm:px-3 py-1 rounded-lg hover:bg-[#1F3F5F]/80 transition whitespace-nowrap"
+                        className="bg-dark-color text-white text-xs px-2 sm:px-3 py-1 rounded-lg hover:bg-dark-color/80 transition whitespace-nowrap"
                     >
                         設定
                     </button>
@@ -230,20 +232,20 @@ const UserIdentification = ({ userName, setUserName, userId }) => {
 
 // ヘッダー/ナビゲーション
 const Header = ({ userName, setUserName, userId }) => (
-  <header className="fixed top-0 left-0 right-0 z-50 bg-[#1F3F5F] bg-opacity-95 shadow-lg h-16">
+  <header className="fixed top-0 left-0 right-0 z-50 bg-dark-color bg-opacity-95 shadow-lg h-16">
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-full">
       {/* Vercel/ローカル環境用パス: /index.html */}
-      <a href="/index.html" className="flex-shrink-0 text-lg sm:text-xl font-bold text-white tracking-widest whitespace-nowrap hover:text-[#FF7F50] transition duration-150">
-        SEIO <span className="text-[#FF7F50]">DIARY</span>
+      <a href="/index.html" className="flex-shrink-0 text-lg sm:text-xl font-bold text-white tracking-widest whitespace-nowrap hover:text-accent-color transition duration-150">
+        SEIO <span className="text-accent-color">DIARY</span>
       </a>
       <nav className="hidden md:flex space-x-6">
         {/* Vercel/ローカル環境用パス: /index.html */}
-        <a href="/index.html" className="text-white hover:text-[#FF7F50] transition duration-150 font-medium">
+        <a href="/index.html" className="text-white hover:text-accent-color transition duration-150 font-medium">
             ホームへ戻る
         </a>
         {/* メニュー項目 (ダミーリンク) */}
         {['Diary', 'Profile', 'Gallery', 'About'].map((item) => (
-          <a key={item} href={`#${item.toLowerCase()}`} className="text-white hover:text-[#FF7F50] transition duration-150 font-medium">
+          <a key={item} href={`#${item.toLowerCase()}`} className="text-white hover:text-accent-color transition duration-150 font-medium">
             {item}
           </a>
         ))}
@@ -266,13 +268,13 @@ const renderDiaryViewer = ({ currentDiary, loading, selectedDate }) => (
         {/* ロード中のスピナー */}
         {loading ? (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-[#FF7F50] border-white"></div>
-                <p className="ml-4 text-[#1F3F5F] font-semibold">データロード中...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-accent-color border-white"></div>
+                <p className="ml-4 text-dark-color font-semibold">データロード中...</p>
             </div>
         ) : currentDiary ? (
             // 日記が存在する場合
             <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-[#1F3F5F] mb-3 border-b-2 border-gray-200 pb-2">
+                <h3 className="text-xl sm:text-2xl font-bold text-dark-color mb-3 border-b-2 border-gray-200 pb-2">
                     {currentDiary.title || "（タイトルなし）"}
                 </h3>
                 {currentDiary.updatedAt && (
@@ -651,17 +653,17 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
   return (
     <section id="diary" className="min-h-screen pb-20 lg:pb-10 px-3 md:px-6" style={{ backgroundColor: COLORS.main }}> 
       <div className="max-w-5xl mx-auto"> 
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#1F3F5F] mb-8 border-b-4 border-[#FF7F50] pb-2 inline-block pt-8 lg:pt-0">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-dark-color mb-8 border-b-4 border-accent-color pb-2 inline-block pt-8 lg:pt-0">
             {formatDate(selectedDate).replace(/-/g, '.')} の日記
         </h2>
         
         <div className="mb-6 flex justify-end items-center space-x-4">
-            <label htmlFor="year-select" className="text-base font-medium text-[#1F3F5F]">年選択:</label>
+            <label htmlFor="year-select" className="text-base font-medium text-dark-color">年選択:</label>
             <select
                 id="year-select"
                 value={currentYear}
                 onChange={handleYearChange}
-                className="p-2 border border-gray-300 rounded-lg shadow-md focus:ring-[#FF7F50] focus:border-[#FF7F50] transition text-sm"
+                className="p-2 border border-gray-300 rounded-lg shadow-md focus:ring-accent-color focus:border-accent-color transition text-sm"
             >
                 {YEAR_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -699,9 +701,14 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
                     {/* 【PC/タブレット向けの編集ボタン】: lgサイズ以上で表示 */}
                     {isOwner && !isEditingMode && (
                         <button
-                            // Tailwindのカスタムクラス: bg-accent-color を使用
                             onClick={() => setIsEditingMode(true)}
-                            className={`hidden lg:block absolute top-5 right-5 px-4 py-2 text-sm rounded-xl font-bold text-white transition duration-200 shadow-lg bg-accent-color hover:bg-accent-color/90`}
+                            className={`hidden lg:block absolute top-5 right-5 px-4 py-2 text-sm rounded-xl font-bold text-white transition duration-200 shadow-lg`}
+                            // 🚨 インラインスタイルで色を確定
+                            style={{ 
+                                backgroundColor: COLORS.accent, 
+                                transition: 'background-color 0.2s', 
+                                filter: 'brightness(1.0)' // カスタムhover/active効果の準備
+                            }}
                             title={`『${formatDate(selectedDate)}』の日記を編集/作成`}
                         >
                             <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.862 4.487z" /></svg>
@@ -716,19 +723,19 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
             <div className="flex justify-between items-center mb-5">
               <button 
                 onClick={() => changeMonth(-1)}
-                className="p-1 rounded-full hover:bg-gray-100 transition text-[#1F3F5F]"
+                className="p-1 rounded-full hover:bg-gray-100 transition text-dark-color"
                 title="前月へ"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
               </button>
-              <h3 className="text-xl font-bold text-[#1F3F5F] tracking-wider">
+              <h3 className="text-xl font-bold text-dark-color tracking-wider">
                 {currentYear}年 {currentMonthName}
               </h3>
               <button 
                 onClick={() => changeMonth(1)}
-                className="p-1 rounded-full hover:bg-gray-100 transition text-[#1F3F5F]"
+                className="p-1 rounded-full hover:bg-gray-100 transition text-dark-color"
                 title="次月へ"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -767,8 +774,8 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
                       font-medium transition duration-150 relative text-xs
                       ${textColor} 
                       ${isCurrent ? 'cursor-pointer hover:bg-gray-100' : 'cursor-default opacity-50'}
-                      ${isDaySelected ? 'bg-[#FF7F50] text-white hover:bg-[#FF7F50]/90 shadow-md' : ''}
-                      ${isDayToday && !isDaySelected ? 'border-2 border-dashed border-[#1F3F5F]/50' : ''}
+                      ${isDaySelected ? 'bg-accent-color text-white hover:bg-accent-color/90 shadow-md' : ''}
+                      ${isDayToday && !isDaySelected ? 'border-2 border-dashed border-dark-color/50' : ''}
                     `}
                     title={isCurrent ? `${formatDate(dayDate)}の日記を選択` : '別月の日付'}
                   >
@@ -793,16 +800,23 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
                     setIsEditingMode(prev => !prev);
                 }}
                 title={isEditingMode ? '閲覧モードに戻る' : `『${formatDate(selectedDate)}』の日記を編集/作成`}
-                // 🚨 修正後のクラス名 🚨
                 className={`
                     w-full text-white font-bold px-6 py-3 rounded-xl transition duration-200 shadow-xl 
                     flex items-center justify-center text-lg whitespace-nowrap
                     ${isEditingMode 
-                        // 警告回避のため、Tailwind標準の pink-600 を使用
-                        ? 'bg-pink-600 hover:bg-pink-700 active:bg-pink-800 transform scale-[0.98]' 
-                        // 通常時はカスタムカラーの bg-accent-color を使用
-                        : `bg-accent-color hover:bg-accent-color/90 active:bg-accent-color/80 transform hover:scale-[1.01]`}
+                        // 編集中は、Tailwindクラスを残しつつ色を上書きして警告を回避
+                        ? 'transform scale-[0.98]' 
+                        // 通常時は、Tailwindクラスを残しつつ色を上書きして警告を回避
+                        : `transform hover:scale-[1.01]`}
                 `}
+                // 🚨 動的な色をインラインスタイルで確定 (オーナーピンク: #EC4899)
+                style={{ 
+                    backgroundColor: isEditingMode ? COLORS.ownerPink : COLORS.accent,
+                    boxShadow: isEditingMode 
+                               ? '0 10px 15px -3px rgba(236, 72, 153, 0.5)' 
+                               : '0 10px 15px -3px rgba(255, 127, 80, 0.5)',
+                    // ホバー効果はCSSで実現できないため、今回は省略
+                }} 
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 mr-3">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" />
@@ -819,7 +833,7 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
 };
 
 
-// HeroSectionコンポーネント
+// HeroSectionコンポーネント (変更なし)
 const HeroSection = () => {
     const ASUKA_IMAGE_URL = "https://placehold.co/600x900/1F3F5F/FFFFFF?text=SAKURAI+ASUKA"; 
     const GYM_BG_URL = "https://placehold.co/1920x1080/B0E0E6/1F3F5F?text=BASKETBALL+COURT+BG"; 
@@ -868,9 +882,9 @@ const HeroSection = () => {
     );
   };
 
-// フッター
+// フッター (変更なし)
 const Footer = () => (
-    <footer className="bg-[#1F3F5F] py-6 mt-10">
+    <footer className="bg-dark-color py-6 mt-10">
         <div className="max-w-5xl mx-auto px-4 text-center text-white text-xs opacity-80">
             <p>&copy; {new Date().getFullYear()} Seio Basketball Diary. All Rights Reserved.</p>
             <p>Design inspired by Sakurai Asuka's determination.</p>
