@@ -1,380 +1,908 @@
-﻿<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEIO DIARY - ボクのバスケ日記</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+﻿// ファイル名: App.jsx
+// 用途: アップロードされたseiodaily.htmlの内容をReactコンポーネントとして再構成し、
+//       ボクの日記アプリのメインロジックとして使用します。
+//
+// 注意: このファイルは、元のHTMLに含まれていたReact、Tailwind、FirebaseのCDNを
+//       Canvas環境が自動的に提供すると仮定して記述されています。
+//       すべてのロジックは単一のAppコンポーネント内に集約されています。
 
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'main-color': '#B0E0E6',       // 淡い青
-              'accent-color': '#FF7F50',     // 情熱のアクセント (コーラル)
-              'dark-color': '#1F3F5F',       // 濃い青
-              'owner-pink': '#EC4899',       // オーナーモードのピンク
-            },
-            // hover:shadow-3xl が使われているためカスタムシャドウを定義
-            boxShadow: {
-              '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { 
+  getFirestore, doc, onSnapshot, setDoc, setLogLevel, getDocs, collection 
+} from 'firebase/firestore';
+
+// Tailwind CSS is assumed to be available.
+
+// Firestoreのログレベルを設定 (デバッグ用)
+setLogLevel('debug'); 
+
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; 
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+let db, auth;
+if (Object.keys(firebaseConfig).length > 0) {
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+  } catch (e) {
+    console.error("🚨 Firebase Initialization Error:", e);
+  }
+} else {
+    console.warn("⚠️ Firebase config not found. Running in mock data mode.");
+}
+
+// --- [ 2. ユーティリティ関数と定数 ] ---
+
+const COLORS = {
+  main: '#B0E0E6',       // 淡い青 (清涼感)
+  accent: '#FF7F50',     // 情熱のアクセントカラー (オレンジ/コーラル)
+  dark: '#1F3F5F',       // 濃い青 (視認性)
+};
+
+const formatDate = (date) => {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+};
+
+const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    // 前後5年をオプションとして生成
+    for (let i = -5; i <= 5; i++) {
+        years.push(currentYear + i);
+    }
+    return years.map(year => ({
+        label: `${year}年`,
+        value: year
+    }));
+};
+const YEAR_OPTIONS = generateYearOptions();
+
+// オーナー様のメールアドレス（このメールアドレスと一致する場合のみ編集権限を持つ）
+const OWNER_EMAIL = "komineyasushi@gmail.com";
+const GUEST_NAME = "ゲスト";
+
+// --- [ 3. コンポーネント群 ] ---
+
+/**
+ * ユーザー識別情報を入力・表示するコンポーネント
+ */
+const UserIdentification = ({ userName, setUserName, userId }) => {
+    const isOwner = userName === OWNER_EMAIL; 
+    // 入力フォームの状態を管理
+    const [input, setInput] = useState(userName === GUEST_NAME ? '' : userName);
+    const [isEditing, setIsEditing] = useState(false);
+
+    useEffect(() => {
+        // localStorageからユーザー名をロード (以前の設定を引き継ぐ)
+        const storedName = localStorage.getItem('asuka_diary_user_name');
+        if (storedName) {
+            setUserName(storedName);
+            if (storedName === OWNER_EMAIL) {
+                setIsEditing(false);
             }
-          }
-        }
-      }
-    </script>
-
-</head>
-<body class="bg-gray-50">
-    <div id="root"></div>
-
-    <script type="text/babel"> 
-        // 外部ファイルから読み込まれるはずのグローバル変数を定義
-        // ★★★ 注：Firebaseを使用するには、ここに実際のFirebaseプロジェクト設定が必要です ★★★
-        const __firebase_config = JSON.stringify({}); // 設定がない場合は空のJSON
-        const __initial_auth_token = null; 
-        const __app_id = 'seio-asuka-diary'; 
-
-        // ----------------------------------------------------
-        // --- [ 新規 テキスト ドキュメント.txt の内容をペースト ] ---
-        // ----------------------------------------------------
-
-        // から export default App; まで、すべてのコードをここに挿入
-
-        // --- Firebase関連のインポート（モジュールではないため、ここではimport/exportを削除または調整） ---
-        // Babelはimport/exportを変換するため、ここでは元の記述を残します。
-        import React, { useState, useEffect, useMemo, useCallback } from 'react';
-        import { initializeApp } from 'firebase/app';
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-        import { 
-          getFirestore, doc, onSnapshot, setDoc, setLogLevel
-        } from 'firebase/firestore';
-        // Tailwind CSS is assumed to be available.
-
-        // --- [ 1. Firebase/Firestore の初期設定とインポート ] ---
-        // Firestoreのログレベルを設定 (デバッグ用)
-        setLogLevel('debug');
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ?
-        __initial_auth_token : null; 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        let db, auth;
-        let isMockMode = false; // ★★★ なびが追記した行
-
-        // 設定がある場合のみFirebaseを初期化
-        if (Object.keys(firebaseConfig).length > 0) {
-          try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-          } catch (e) {
-            console.error("🚨 Firebase Initialization Error:", e);
-            isMockMode = true; // ★★★ なびが追記した行
-          }
         } else {
-            console.warn("⚠️ Firebase config not found. Running in mock data mode.");
-            isMockMode = true; // ★★★ なびが追記した行
+            setUserName(GUEST_NAME);
+            // ゲストの場合は強制的に編集を促す
+            setIsEditing(true); 
         }
-
-        // --- [ 1.5. モックデータ定義（ローカル実行用） ] --- // ★★★ なびが追記したセクション
-        const MOCK_DATA = {
-            [formatDate(new Date())]: { // 今日
-                title: "【モック】強豪校との練習試合！",
-                content: "今日は Firebase に接続できなかったため、このモックデータが表示されています。ローカルでは保存はできませんが、UIの動作は確認できます！\n\nバスケの練習はデージちばったさーね！次の試合も勝つさー！",
-                mood: "最高",
-                updatedAt: new Date(),
-                createdAt: new Date(),
-            },
-            "2025-10-17": { // 以前の会話で出た明日香ちゃんの設定日
-                title: "【モック】ボクの一人称は「ボク」だよ。",
-                content: "この日は、ボクの設定が完成した日だよ。ボクの一人称は「ボク」って、デージ重要なはずよ。",
-                mood: "普通",
-                updatedAt: new Date(),
-                createdAt: new Date(),
-            }
-            // 他の日付のモックデータもここに追加できます
-        };
-        // --- [ 2. ユーティリティ関数と定数 ] ---
-        // （ここは変更なし）
-        // ...
-        
-        // --- [ 3. コンポーネント群 ] ---
-
-        // （UserIdentificationは変更なし）
-        // ...
-
-        // --- [ 3.1 閲覧モードコンポーネント ] ---
-
-        // （renderDiaryViewerは変更なし）
-        // ...
-        
-        // --- [ 3.2 編集モードコンポーネント ] ---
-
-        // （renderDiaryEditorは変更なし）
-        // ...
+    }, [setUserName]);
+    
+    // userNameが更新されたらinputも更新する
+    useEffect(() => {
+        if (!isEditing) {
+            setInput(userName === GUEST_NAME ? '' : userName);
+        }
+    }, [userName, isEditing]);
 
 
-        // 日記の表示とカレンダーUIを統合したメインセクション
-        const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode }) => {
-          // ... State定義（変更なし）
-          const today = useMemo(() => new Date(), []);
-          const [selectedDate, setSelectedDate] = useState(today);
-          const [currentDiary, setCurrentDiary] = useState(null);
-          const [loading, setLoading] = useState(true);
-          const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-          const [currentYear, setCurrentYear] = useState(today.getFullYear());
-          
-          // 編集フォーム用のState
-          const [editorTitle, setEditorTitle] = useState('');
-          const [editorContent, setEditorContent] = useState('');
-          const [editorMood, setEditorMood] = useState('普通');
-          const [isSaving, setIsSaving] = useState(false);
-          const [saveMessage, setSaveMessage] = useState('');
-          // 編集中のデータが未保存かどうかを判定するState (UX改善のため)
-          const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); 
+    const handleSave = () => {
+        if (input.trim()) {
+            const name = input.trim();
+            // 入力がオーナーメールアドレスであればオーナーとして設定
+            const finalName = name.toLowerCase() === OWNER_EMAIL ? OWNER_EMAIL : name; 
 
-          // --- [ A. Firestoreデータ取得ロジック（修正） ] ---
-          useEffect(() => {
-            // 認証待ち、またはDB未初期化の場合は早期リターン
-            if (!db || !userId) {
-                // ★★★ ここからローカル対応の修正 ★★★
-                if (isMockMode) {
-                    setLoading(false);
-                    const docId = formatDate(selectedDate);
-                    const data = MOCK_DATA[docId];
-                    setCurrentDiary(data || null);
-                    
-                    if (isOwner) {
-                        setEditorTitle(data?.title || '');
-                        setEditorContent(data?.content || '');
-                        setEditorMood(data?.mood || '普通');
-                        setSaveMessage('⚠️ モックデータ表示中です。保存はできません。');
-                        setIsEditingMode(false); // モックモードでは閲覧のみ
-                    }
-                    return;
-                }
-                // ★★★ ここまでローカル対応の修正 ★★★
+            setUserName(finalName);
+            // localStorageに保存
+            localStorage.setItem('asuka_diary_user_name', finalName);
+            setIsEditing(false);
+        } else {
+            // 入力がない場合はゲスト名に戻し、編集を促す
+            setUserName(GUEST_NAME);
+            localStorage.removeItem('asuka_diary_user_name');
+            setIsEditing(true); 
+            console.error("名前を入力してください。");
+        }
+    };
+    
+    const welcomeMessage = isOwner
+        ? "オーナー様、お帰りなさいませ！♥️✨"
+        : `ようこそ、${userName}様！`;
 
-                setLoading(false);
-                if (isOwner) {
-                    setSaveMessage('認証を待っています...');
-                }
-                return; 
-            }
-
-            setLoading(true);
-            const docId = formatDate(selectedDate); 
-            // 
-            // プライベートデータパス: artifacts/{appId}/users/{userId}/diaries/{日付}
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/diaries`, docId);
-
-            
-            const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-              let data = null;
-              if (docSnap.exists()) {
-                data = docSnap.data();
-              }
-              setCurrentDiary(data ? { id: docSnap.id, ...data, date: docSnap.id } : null);
-
-              // オーナーの場合、フォームにデータを流し込む（閲覧モードでも同期）
-              if (isOwner) {
-                setEditorTitle(data?.title || '');
-          
-                setEditorContent(data?.content || '');
-                setEditorMood(data?.mood || '普通');
-                setSaveMessage(data ? 'この日記を編集できます。' : '未記入です。新しい記事を作成できます！');
-                setHasUnsavedChanges(false); // データ同期後は変更なしと見なす
-              }
-
-              setLoading(false);
-            }, (error) => {
-              console.error("Firestore Snapshot Error:", error);
-              setLoading(false);
-            });
-
-            return () => unsubscribeSnapshot();
-          }, [userId, selectedDate, isOwner]); 
-          
-          // 編集内容の変更を監視し、未保存フラグを更新
-          // ... （このロジックは変更なし）
-          useEffect(() => {
-            // 現在のFirestoreデータとエディタの値を比較
-            const currentTitle = currentDiary?.title || '';
-            const currentContent = currentDiary?.content || '';
-            const currentMood = currentDiary?.mood || '普通';
-
-            const isDirty = (
-                editorTitle !== currentTitle ||
-                editorContent !== currentContent ||
-                editorMood !== currentMood
-            );
-            
-            // ロード中でない、かつオーナーの場合のみフラグを更新
-            if (!loading && 
-            isOwner) {
-                setHasUnsavedChanges(isDirty);
-            }
-          }, [editorTitle, editorContent, editorMood, currentDiary, loading, isOwner]);
-        // --- [ B. 日記保存ロジック (オーナー専用)（修正） ] ---
-          const handleSave = async () => {
-              // ★★★ ここからローカル対応の修正 ★★★
-              if (isMockMode) {
-                  setSaveMessage('🚨 モックモードでは保存できません。サーバーにアップロードするか、Firebaseを設定してください。');
-                  return;
-              }
-              // ★★★ ここまでローカル対応の修正 ★★★
-              
-              if (!db || !auth || !userId) {
-                  setSaveMessage('🚨 データベース接続エラー、または未認証です。');
-                  return;
-              }
-              if (!editorTitle.trim() && !editorContent.trim()) {
-                  setSaveMessage('🚨 タイトルか内容のどちらかを入力してください。');
-                  return;
-              }
-
-              setIsSaving(true);
-              setSaveMessage('✨ 保存中... サーバーへデータを送信しています。');
-
-              const docId = formatDate(selectedDate);
-              const docRef = doc(db, `artifacts/${appId}/users/${userId}/diaries`, docId);
-              
-              try {
-                  // setDoc with merge: trueで、フィールドを上書きまたは新規作成
-                  await setDoc(docRef, {
-                      title: editorTitle,
-                      content: editorContent,
-                      mood: editorMood,
-                      updatedAt: new Date(),
-              
-                      // 新規作成時のみcreatedAtを設定 (既存のcreatedAtはFirestoreのスナップショットから取得しているため、ここでは上書きしない)
-                      createdAt: currentDiary?.createdAt || new Date(), 
-                  }, { merge: true });
-                  setSaveMessage('✅ ボクの日記の保存が完了しました！');
-                  setHasUnsavedChanges(false); // 保存完了
-                  // 保存成功後、自動的に閲覧モードに戻る
-                  setIsEditingMode(false);
-              } catch (error) {
-                  console.error("Firestore Save Error:", error);
-                  setSaveMessage(`🔥 保存失敗: エラーコード ${error.code}が発生しました。`);
-              } finally {
-                  setIsSaving(false);
-              }
-          };
-        // 未保存の変更がある場合の確認ハンドラ
-          // ... （このロジックは変更なし）
-          const handleUnsavedChangeCheck = (callback) => {
-              // オーナーかつ編集中で未保存の変更がある場合
-              if (isOwner && isEditingMode && hasUnsavedChanges) {
-                  // カスタムモーダルの代わりに、一時的なUIメッセージでユーザーに確認を促す
-                  setSaveMessage('🚨 未保存の変更があります！中止ボタンで破棄するか、保存ボタンで保存してください。');
-        // 変更をキャンセルしたことを伝えるため、falseを返す（カレンダー操作を中止）
-                  return false;
-              }
-              // 変更がない、またはゲストの場合はそのまま実行
-              callback();
-        // 変更があった場合はすでにfalseが返っているので、成功時はtrueを返す（カレンダー操作を実行）
-              return true;
-          };
-        // --- [ C. カレンダーUIロジック ] ---
-          // ... (以降のロジックは変更なし)
-          const getFirstDayOfMonth = (year, month) => new Date(year, month, 1);
-          // ... （最後まで）
-          
-        // --- [ 4. メイン App コンポーネント ] ---
-
-        const App = () => {
-            // ... (Appコンポーネント内は変更なし)
-            const [userId, setUserId] = useState(null);
-            const [userName, setUserName] = useState(GUEST_NAME); 
-            // 編集モードの状態をトップレベルで管理
-            const [isEditingMode, setIsEditingMode] = useState(false);
-            const isOwner = userName === OWNER_EMAIL;
-
-            // Firebase認証処理
-            const signIn = useCallback(async () => {
-                if (!auth) return;
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                        console.log("Firebase: Signed in with Custom Token.");
-                   
-                    } else {
-                        await signInAnonymously(auth);
-                        console.log("Firebase: Signed in Anonymously.");
-                    }
-                } catch (error) {
-                    console.error("🚨 Authentication failed during sign-in attempt:", error);
-                }
-            }, []);
-        // 認証状態の監視と処理
-            useEffect(() => {
-                if (!auth) { // ★★★ モックモード対応：authオブジェクトがない場合は処理しない
-                  if (isMockMode) {
-                      setUserId('MOCK_USER_ID'); // ダミーのIDを設定
-                      return;
-                  }
-                  return; 
-                }
-
-                const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        // Auth IDを短縮せずに全て表示する
-                        setUserId(user.uid); 
-                        console.log("Firebase: Auth state 
-                        changed. User ID set:", user.uid);
-                    } else {
-                        // ユーザーがいない場合はサインインを試みる
-                        await signIn();
-                    }
-                });
-
-                return () => unsubscribeAuth();
-            }, [auth, signIn]);
-        // モバイル用固定ボタンの表示/非表示フラグ
-            const showFixedButton = isOwner; 
-            
-            return (
-                <div className="min-h-screen antialiased text-gray-900 font-sans">
-                    <Header 
-                        userName={userName} 
-                        setUserName={setUserName} 
-                        userId={userId} 
+    // オーナーモードの表示
+    if (isOwner) {
+        return (
+             <div className="flex flex-col items-end space-y-1">
+                {/* オーナーメッセージ */}
+                <span className="text-white text-sm font-semibold p-1 px-3 bg-pink-500 rounded-full shadow-md transition duration-300 whitespace-nowrap">
+                    {welcomeMessage}
+                </span>
+                
+                {/* デバッグ情報: OWNER MODEであることを強調 */}
+                <p className="text-pink-200 text-xs px-2 py-0.5 bg-pink-800 rounded-full opacity-90">
+                    OWNER MODE ({OWNER_EMAIL})
+                </p>
+                {/* Auth ID はPCサイズでのみ表示 */}
+                <p className="text-white text-xs opacity-60 hidden md:block" title="Firebase認証ID">
+                    Auth ID: {userId ? userId.substring(0, 8) + '...' : '認証中'}
+                </p>
+             </div>
+        );
+    }
+    
+    // ゲストモードの表示
+    return (
+        <div className="flex items-center space-x-3">
+            {!isEditing ? (
+                <>
+                    <span className="text-white text-sm font-semibold p-1 px-3 bg-[#FF7F50] rounded-full shadow-md transition duration-300 whitespace-nowrap">
+                        {welcomeMessage}
+                    </span>
+                    <button 
+                        onClick={() => {
+                            setInput(userName === GUEST_NAME ? '' : userName);
+                            setIsEditing(true);
+                        }}
+                        className="text-white text-xs hover:text-[#B0E0E6] transition duration-150"
+                        title="ユーザー情報を変更"
+                    >
+                        [変更]
+                    </button>
+                </>
+            ) : (
+                // 編集フォーム
+                <div className="flex space-x-2 p-1 bg-white rounded-lg shadow-inner">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="名前またはメール"
+                        className="text-gray-800 text-sm p-1 border rounded focus:ring-[#FF7F50] focus:border-[#FF7F50] w-24 sm:w-32" 
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
                     />
-          
-                    {/* pt-16でヘッダー下のスペースを確保。モバイルの固定フッターのpb-20を適用/解除 */}
-                    <main className={`pt-16 ${showFixedButton && 'pb-20 lg:pb-0'}`}> 
-                        <HeroSection />
-                        <DiaryCalendarSection 
-                            userId={userId} 
-                       
-                            isOwner={isOwner} 
-                            isEditingMode={isEditingMode} 
-                            setIsEditingMode={setIsEditingMode} 
-                        />
-                    </main>
-                    <Footer />
+                    <button 
+                        onClick={handleSave}
+                        className="bg-[#1F3F5F] text-white text-xs px-2 sm:px-3 py-1 rounded-lg hover:bg-[#1F3F5F]/80 transition whitespace-nowrap"
+                    >
+                        設定
+                    </button>
                 </div>
-           
-              );
-            };
+            )}
+             <p className="text-white text-xs opacity-60 hidden md:block" title="Firebase認証ID">
+                Auth ID: {userId ? userId.substring(0, 8) + '...' : '認証中'}
+            </p>
+        </div>
+    );
+};
 
-        // ----------------------------------------------------
-        // --- [ 6. アプリの描画 ] ---
-        // ----------------------------------------------------
+// ヘッダー/ナビゲーション
+const Header = ({ userName, setUserName, userId }) => (
+  <header className="fixed top-0 left-0 right-0 z-50 bg-[#1F3F5F] bg-opacity-95 shadow-lg h-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-full">
+      <h1 className="text-lg sm:text-xl font-bold text-white tracking-widest whitespace-nowrap">
+        SEIO DIARY
+      </h1>
+      <nav className="hidden md:flex space-x-6">
+        {/* メニュー項目 (ダミーリンク) */}
+        {['Diary', 'Profile', 'Gallery', 'About'].map((item) => (
+          <a key={item} href={`#${item.toLowerCase()}`} className="text-white hover:text-[#FF7F50] transition duration-150 font-medium">
+            {item}
+          </a>
+        ))}
+      </nav>
+      {/* ユーザー識別情報を表示 */}
+      <UserIdentification 
+        userName={userName} 
+        setUserName={setUserName} 
+        userId={userId} 
+      />
+    </div>
+  </header>
+);
+
+// --- [ 3.1 閲覧モードコンポーネント ] ---
+
+const renderDiaryViewer = ({ currentDiary, loading, selectedDate }) => (
+    <div className="w-full bg-white p-6 md:p-8 rounded-xl shadow-2xl relative transition duration-300 hover:shadow-3xl">
         
-        // AppコンポーネントをDOMにレンダリングする
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
-        root.render(<App />);
+        {/* ロード中のスピナー */}
+        {loading ? (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-[#FF7F50] border-white"></div>
+                <p className="ml-4 text-[#1F3F5F] font-semibold">データロード中...</p>
+            </div>
+        ) : currentDiary ? (
+            // 日記が存在する場合
+            <div>
+                <h3 className="text-xl sm:text-2xl font-bold text-[#1F3F5F] mb-3 border-b-2 border-gray-200 pb-2">
+                    {currentDiary.title || "（タイトルなし）"}
+                </h3>
+                {currentDiary.updatedAt && (
+                    <p className="text-xs text-gray-500 mb-3">
+                        最終更新: {new Date(currentDiary.updatedAt?.toDate ? currentDiary.updatedAt.toDate() : currentDiary.updatedAt).toLocaleString('ja-JP')}
+                    </p>
+                )}
+                {/* プレーンテキストとして表示し、改行を認識させる */}
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                    {currentDiary.content || "日記の内容がありません。"}
+                </div>
+                {currentDiary.mood && (
+                    <p className="mt-6 text-sm text-gray-500 italic">
+                        今日の気分: {currentDiary.mood}
+                    </p>
+                )}
+            </div>
+        ) : (
+            // 日記が存在しない場合
+            <div className="text-center py-12">
+                <p className="text-lg sm:text-xl font-bold text-gray-500 mb-2">
+                    {formatDate(selectedDate)} の日記はありません。
+                </p>
+                {/* 一人称「ボク」のメッセージ */}
+                <p className="text-gray-600 text-sm">
+                    ボクの日記は、まだその日を待っているみたいだ。
+                </p>
+            </div>
+        )}
+    </div>
+);
+
+// --- [ 3.2 編集モードコンポーネント ] ---
+
+const renderDiaryEditor = ({ 
+    selectedDate, handleSave, isSaving, saveMessage, 
+    editorTitle, setEditorTitle, editorContent, setEditorContent, 
+    editorMood, setEditorMood, setIsEditingMode, loading 
+}) => {
+    
+    // 保存メッセージのスタイルを動的に決定
+    const getMessageStyle = (message) => {
+        if (message.includes('✅')) return 'bg-green-100 border-green-400 text-green-700';
+        if (message.includes('🚨') || message.includes('🔥')) return 'bg-red-100 border-red-400 text-red-700';
+        if (message.includes('✨') || message.includes('保存中')) return 'bg-yellow-100 border-yellow-400 text-yellow-700';
+        return 'bg-blue-100 border-blue-400 text-blue-700';
+    };
+
+    return (
+        <div className="w-full bg-white p-6 md:p-8 rounded-xl shadow-2xl border-4 border-pink-300 relative">
+            
+            <div className="flex justify-between items-center mb-4 border-b pb-2 border-pink-200">
+                <h3 className="text-xl font-bold text-pink-600">
+                    ✍️ {formatDate(selectedDate)} のボクの日記 (編集中)
+                </h3>
+                {/* 編集モードから閲覧モードに戻るボタン */}
+                <button
+                    onClick={() => setIsEditingMode(false)}
+                    title="閲覧モードに戻る"
+                    className="px-3 py-1 text-sm rounded-lg bg-red-100 text-red-600 font-semibold hover:bg-red-200 transition whitespace-nowrap"
+                >
+                    × 編集を中止する
+                </button>
+            </div>
+
+            {/* 状態メッセージ */}
+            {saveMessage && (
+                <div className={`p-3 mb-4 rounded-lg border-l-4 font-medium text-sm ${getMessageStyle(saveMessage)}`}>
+                    {saveMessage}
+                </div>
+            )}
+            
+            {loading && <p className="text-center text-gray-500 py-4">データロード中...</p>}
+            
+            {!loading && (
+                <>
+                    <div className="mb-3">
+                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
+                        <input
+                            id="title"
+                            type="text"
+                            value={editorTitle}
+                            onChange={(e) => setEditorTitle(e.target.value)}
+                            placeholder="例: 強豪校との合同練習で大金星"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 text-base shadow-sm"
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">日記の内容 (ボクの気持ちを正直に書いてね)</label>
+                    
+                        <textarea
+                            id="content"
+                            value={editorContent}
+                            onChange={(e) => setEditorContent(e.target.value)}
+                            rows="12" 
+                            placeholder="今日の練習で意識したこと、感じたこと、次の目標などを書き込もう..."
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 resize-y text-base shadow-sm"
+                        ></textarea>
+                    </div>
+
+                    <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="w-full sm:w-1/3">
+                            <label htmlFor="mood" className="block text-sm font-medium text-gray-700 mb-1">今日の気分</label>
+                            <select
+                                id="mood"
+                                value={editorMood}
+                                onChange={(e) => setEditorMood(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 text-base shadow-sm"
+                            >
+                                {['最高', '楽しい', '普通', '疲れた', '悔しい', 'その他'].map(m => (
+                                    <option key={m} value={m}>{m}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className={`
+                                w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-white text-lg shadow-lg transition duration-300 whitespace-nowrap
+                                ${isSaving 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-pink-500 hover:bg-pink-600 active:bg-pink-700 transform hover:scale-105'}
+                            `}
+                        >
+                            {isSaving ? '保存中...' : '🎉 ボクの日記を公開する (保存)'}
+                        </button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+
+// 日記の表示とカレンダーUIを統合したメインセクション
+const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode }) => {
+  const today = useMemo(() => new Date(), []);
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [currentDiary, setCurrentDiary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  
+  // 編集フォーム用のState
+  const [editorTitle, setEditorTitle] = useState('');
+  const [editorContent, setEditorContent] = useState('');
+  const [editorMood, setEditorMood] = useState('普通');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  // 編集中のデータが未保存かどうかを判定するState (UX改善のため)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); 
+
+  // --- [ A. Firestoreデータ取得ロジック ] ---
+  useEffect(() => {
+    // 認証待ち、またはDB未初期化の場合は早期リターン
+    if (!db || !userId) {
+        setLoading(false);
+        if (isOwner) {
+            setSaveMessage('認証を待っています...');
+        }
+        return; 
+    }
+
+    setLoading(true);
+    const docId = formatDate(selectedDate); 
+    // プライベートデータパス: artifacts/{appId}/users/{userId}/diaries/{日付}
+    const docRef = doc(db, `artifacts/${appId}/users/${userId}/diaries`, docId);
+
+    
+    const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+      let data = null;
+      if (docSnap.exists()) {
+        data = docSnap.data();
+      }
+      setCurrentDiary(data ? { id: docSnap.id, ...data, date: docSnap.id } : null);
+
+      // オーナーの場合、フォームにデータを流し込む（閲覧モードでも同期）
+      if (isOwner) {
+        setEditorTitle(data?.title || '');
+        setEditorContent(data?.content || '');
+        setEditorMood(data?.mood || '普通');
+        setSaveMessage(data ? 'この日記を編集できます。' : '未記入です。新しい記事を作成できます！');
+        setHasUnsavedChanges(false); // データ同期後は変更なしと見なす
+      }
+
+      setLoading(false);
+    }, (error) => {
+      console.error("Firestore Snapshot Error:", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribeSnapshot();
+
+  }, [userId, selectedDate, isOwner]); 
+  
+  // 編集内容の変更を監視し、未保存フラグを更新
+  useEffect(() => {
+    // 現在のFirestoreデータとエディタの値を比較
+    const currentTitle = currentDiary?.title || '';
+    const currentContent = currentDiary?.content || '';
+    const currentMood = currentDiary?.mood || '普通';
+
+    const isDirty = (
+        editorTitle !== currentTitle ||
+        editorContent !== currentContent ||
+        editorMood !== currentMood
+    );
+    
+    // ロード中でない、かつオーナーの場合のみフラグを更新
+    if (!loading && isOwner) {
+        setHasUnsavedChanges(isDirty);
+    }
+  }, [editorTitle, editorContent, editorMood, currentDiary, loading, isOwner]);
+
+
+  // --- [ B. 日記保存ロジック (オーナー専用) ] ---
+  const handleSave = async () => {
+      if (!db || !auth || !userId) {
+          setSaveMessage('🚨 データベース接続エラー、または未認証です。');
+          return;
+      }
+      if (!editorTitle.trim() && !editorContent.trim()) {
+          setSaveMessage('🚨 タイトルか内容のどちらかを入力してください。');
+          return;
+      }
+
+      setIsSaving(true);
+      setSaveMessage('✨ 保存中... サーバーへデータを送信しています。');
+
+      const docId = formatDate(selectedDate);
+      const docRef = doc(db, `artifacts/${appId}/users/${userId}/diaries`, docId);
+      
+      try {
+          // setDoc with merge: trueで、フィールドを上書きまたは新規作成
+          await setDoc(docRef, {
+              title: editorTitle,
+              content: editorContent,
+              mood: editorMood,
+              updatedAt: new Date(),
+              createdAt: currentDiary?.createdAt || new Date(), 
+          }, { merge: true }); 
+
+          setSaveMessage('✅ ボクの日記の保存が完了しました！');
+          setHasUnsavedChanges(false); // 保存完了
+          // 保存成功後、自動的に閲覧モードに戻る
+          setIsEditingMode(false); 
+      } catch (error) {
+          console.error("Firestore Save Error:", error);
+          setSaveMessage(`🔥 保存失敗: エラーコード ${error.code}が発生しました。`);
+      } finally {
+          setIsSaving(false);
+      }
+  };
+  
+  // 未保存の変更がある場合の確認ハンドラ
+  const handleUnsavedChangeCheck = (callback) => {
+      if (isOwner && isEditingMode && hasUnsavedChanges) {
+          // カスタムモーダルの代わりに、一時的なUIメッセージでユーザーに確認を促す
+          setSaveMessage('🚨 未保存の変更があります！中止ボタンで破棄するか、保存ボタンで保存してください。');
+          // 変更をキャンセルしたことを伝えるため、falseを返す（カレンダー操作を中止）
+          return false; 
+      }
+      // 変更がない、またはゲストの場合はそのまま実行
+      callback();
+      // 変更があった場合はすでにfalseが返っているので、成功時はtrueを返す（カレンダー操作を実行）
+      return true;
+  };
+
+
+  // --- [ C. カレンダーUIロジック ] ---
+  
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1);
+  const getLastDayOfMonth = (year, month) => new Date(year, month + 1, 0);
+
+  const daysInMonth = useMemo(() => {
+    // ... カレンダーのロジックは変更なし
+    const startDay = getFirstDayOfMonth(currentYear, currentMonth);
+    const endDay = getLastDayOfMonth(currentYear, currentMonth);
+    const numDays = endDay.getDate();
+    
+    const days = [];
+    const startWeekDay = startDay.getDay(); 
+    const startOffset = startWeekDay;
+    
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const lastDayOfPrevMonth = getLastDayOfMonth(prevYear, prevMonth).getDate();
+
+    for (let i = startOffset; i > 0; i--) {
+        days.push({ 
+            date: new Date(prevYear, prevMonth, lastDayOfPrevMonth - i + 1), 
+            isCurrentMonth: false 
+        });
+    }
+
+    for (let i = 1; i <= numDays; i++) {
+        days.push({ 
+            date: new Date(currentYear, currentMonth, i), 
+            isCurrentMonth: true 
+        });
+    }
+
+    const totalSlots = 42; 
+    const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    
+    for (let i = 1; days.length < totalSlots; i++) {
+        days.push({ 
+            date: new Date(nextYear, nextMonth, i), 
+            isCurrentMonth: false 
+        });
+    }
+
+    return days;
+  }, [currentYear, currentMonth]);
+
+  const handleYearChange = (e) => {
+    // 未保存の変更チェック
+    handleUnsavedChangeCheck(() => {
+        const newYear = parseInt(e.target.value, 10);
+        const newMonth = currentMonth; 
+    
+        setCurrentYear(newYear);
+        const day = Math.min(selectedDate.getDate(), getLastDayOfMonth(newYear, newMonth).getDate());
+        const newSelectedDate = new Date(newYear, newMonth, day);
+        setSelectedDate(newSelectedDate);
+        if (isOwner) setIsEditingMode(false);
+    });
+  };
+  
+  const changeMonth = (delta) => {
+    // 未保存の変更チェック
+    handleUnsavedChangeCheck(() => {
+        const newDate = new Date(currentYear, currentMonth + delta, 1);
+        const newYear = newDate.getFullYear();
+        const newMonth = newDate.getMonth(); 
+    
+        setCurrentYear(newYear);
+        setCurrentMonth(newMonth);
         
-    </script>
-</body>
-</html>
+        const day = Math.min(selectedDate.getDate(), getLastDayOfMonth(newYear, newMonth).getDate());
+        const newSelectedDate = new Date(newYear, newMonth, day);
+        setSelectedDate(newSelectedDate); 
+        if (isOwner) setIsEditingMode(false);
+    });
+  };
+
+  const handleDayClick = (date) => {
+    // 未保存の変更チェック
+    // 別の月の日付はクリックしても反応しない（ここでは無効化）
+    if (!date.isCurrentMonth) {
+        // もし別の月の日のクリックを許可するなら、ここで月を変更するロジックを入れる
+        // changeMonth(date.date.getTime() > selectedDate.getTime() ? 1 : -1);
+        return; 
+    }
+    
+    handleUnsavedChangeCheck(() => {
+        setSelectedDate(date.date);
+        // クリックした日がカレンダーの表示月と異なっていれば、カレンダーも移動させる
+        if (date.date.getMonth() !== currentMonth || date.date.getFullYear() !== currentYear) {
+            setCurrentMonth(date.date.getMonth());
+            setCurrentYear(date.date.getFullYear());
+        }
+        if (isOwner) setIsEditingMode(false);
+    });
+  };
+  
+  // --- [ D. メインレンダリング ] ---
+
+  const isToday = (date) => formatDate(date) === formatDate(today);
+  const isSelected = (date) => formatDate(date) === formatDate(selectedDate);
+  
+  const currentMonthName = new Intl.DateTimeFormat('ja-JP', { month: 'long' }).format(getFirstDayOfMonth(currentYear, currentMonth));
+
+  return (
+    <section id="diary" className="min-h-screen pb-20 lg:pb-10 px-3 md:px-6" style={{ backgroundColor: COLORS.main }}> 
+      <div className="max-w-5xl mx-auto"> 
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#1F3F5F] mb-8 border-b-4 border-[#FF7F50] pb-2 inline-block pt-8 lg:pt-0">
+            {formatDate(selectedDate).replace(/-/g, '.')} の日記
+        </h2>
+        
+        <div className="mb-6 flex justify-end items-center space-x-4">
+            <label htmlFor="year-select" className="text-base font-medium text-[#1F3F5F]">年選択:</label>
+            <select
+                id="year-select"
+                value={currentYear}
+                onChange={handleYearChange}
+                className="p-2 border border-gray-300 rounded-lg shadow-md focus:ring-[#FF7F50] focus:border-[#FF7F50] transition text-sm"
+            >
+                {YEAR_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+            </select>
+        </div>
+
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* 日記コンテンツエリア (左側) - オーナーはモードを切り替え */}
+          {isOwner && isEditingMode 
+            ? renderDiaryEditor({
+                selectedDate, 
+                handleSave, 
+                isSaving, 
+                saveMessage, 
+                editorTitle, 
+                setEditorTitle, 
+                editorContent, 
+                setEditorContent, 
+                editorMood, 
+                setEditorMood, 
+                setIsEditingMode, 
+                loading 
+            }) 
+            : (
+                <div className="relative lg:w-2/3">
+                    {renderDiaryViewer({
+                        currentDiary,
+                        loading,
+                        selectedDate,
+                    })}
+                    
+                    {/* 【PC/タブレット向けの編集ボタン】: lgサイズ以上で表示 */}
+                    {isOwner && !isEditingMode && (
+                        <button
+                            onClick={() => setIsEditingMode(true)}
+                            className={`hidden lg:block absolute top-5 right-5 px-4 py-2 text-sm rounded-xl font-bold text-white transition duration-200 shadow-lg`}
+                            style={{ backgroundColor: COLORS.accent }} // インラインスタイルで色を確定
+                            title={`『${formatDate(selectedDate)}』の日記を編集/作成`}
+                        >
+                            <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.862 4.487z" /></svg>
+                            日記を編集する
+                        </button>
+                    )}
+                </div>
+            )}
+          
+          {/* カレンダーUI (右側) */}
+          <div className="lg:w-1/3 bg-white p-5 rounded-xl shadow-2xl">
+            <div className="flex justify-between items-center mb-5">
+              <button 
+                onClick={() => changeMonth(-1)}
+                className="p-1 rounded-full hover:bg-gray-100 transition text-[#1F3F5F]"
+                title="前月へ"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+              </button>
+              <h3 className="text-xl font-bold text-[#1F3F5F] tracking-wider">
+                {currentYear}年 {currentMonthName}
+              </h3>
+              <button 
+                onClick={() => changeMonth(1)}
+                className="p-1 rounded-full hover:bg-gray-100 transition text-[#1F3F5F]"
+                title="次月へ"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-1">
+              <span className="text-red-500">日</span>
+              <span>月</span>
+              <span>火</span>
+              <span>水</span>
+              <span>木</span>
+              <span>金</span>
+              <span className="text-blue-500">土</span>
+            </div>
+            
+            <div className="grid grid-cols-7 gap-1">
+              {daysInMonth.map((day, index) => {
+                const dayDate = day.date;
+                const isCurrent = day.isCurrentMonth;
+                const isDaySelected = isSelected(dayDate);
+                const isDayToday = isToday(dayDate);
+                
+                let textColor = isCurrent ? COLORS.dark : 'text-gray-400';
+                if (dayDate.getDay() === 0) textColor = isCurrent ? 'text-red-500' : 'text-red-300'; 
+                if (dayDate.getDay() === 6) textColor = isCurrent ? 'text-blue-500' : 'text-blue-300'; 
+
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleDayClick(dayDate)}
+                    className={`
+                      w-full h-8 flex items-center justify-center rounded-full
+                      font-medium transition duration-150 relative text-xs
+                      ${textColor} 
+                      ${isCurrent ? 'cursor-pointer hover:bg-gray-100' : 'cursor-default opacity-50'}
+                      ${isDaySelected ? 'bg-[#FF7F50] text-white hover:bg-[#FF7F50]/90 shadow-md' : ''}
+                      ${isDayToday && !isDaySelected ? 'border-2 border-dashed border-[#1F3F5F]/50' : ''}
+                    `}
+                    title={isCurrent ? `${formatDate(dayDate)}の日記を選択` : '別月の日付'}
+                  >
+                    {dayDate.getDate()}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* 【モバイル専用の編集ボタン】: lgサイズ以上で非表示 (lg:hidden) */}
+      {isOwner && (
+          <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-white/95 shadow-[0_-5px_15px_rgba(0,0,0,0.1)] backdrop-blur-sm lg:hidden">
+            <button
+                onClick={() => {
+                    // 未保存の変更がある場合は、閲覧モードへの切り替えをブロックする
+                    if (isEditingMode && hasUnsavedChanges) {
+                        setSaveMessage('🚨 未保存の変更があります！中止ボタンで破棄するか、保存ボタンで保存してください。');
+                        return;
+                    }
+                    setIsEditingMode(prev => !prev);
+                }}
+                title={isEditingMode ? '閲覧モードに戻る' : `『${formatDate(selectedDate)}』の日記を編集/作成`}
+                className={`
+                    w-full text-white font-bold px-6 py-3 rounded-xl transition duration-200 shadow-xl 
+                    flex items-center justify-center text-lg whitespace-nowrap
+                    ${isEditingMode 
+                        // 編集中は赤系で危険色をアピール
+                        ? 'bg-red-500 hover:bg-red-600 active:bg-red-700 transform scale-[0.98]' 
+                        // 通常時は目立つアクセントカラー
+                        : `hover:bg-[${COLORS.accent}]/90 active:bg-[${COLORS.accent}]/80 transform hover:scale-[1.01]`}
+                `}
+                style={{ backgroundColor: isEditingMode ? '#EF4444' : COLORS.accent }} // Tailwind JIT compilation bug workaround
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 mr-3">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.862 4.487Z" />
+                </svg>
+                {isEditingMode ? '編集中: 閲覧に戻る' : '日記を書く/編集する'}
+            </button>
+            <p className="text-center text-xs text-gray-500 mt-1">
+                {isEditingMode ? '※ 日記の内容を保存するにはフォーム内のボタンを押してください。' : `選択日: ${formatDate(selectedDate)}`}
+            </p>
+          </div>
+      )}
+    </section>
+  );
+};
+
+
+// HeroSectionコンポーネント
+const HeroSection = () => {
+    // プレースホルダー画像
+    const ASUKA_IMAGE_URL = "https://placehold.co/600x900/1F3F5F/FFFFFF?text=SAKURAI+ASUKA"; 
+    const GYM_BG_URL = "https://placehold.co/1920x1080/B0E0E6/1F3F5F?text=BASKETBALL+COURT+BG"; 
+  
+    return (
+      <section 
+        className="relative h-[75vh] min-h-[500px] overflow-hidden flex flex-col justify-start items-center" 
+        style={{ backgroundColor: COLORS.dark }}
+      >
+        
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-30" 
+          style={{ backgroundImage: `url('${GYM_BG_URL}')` }}
+        >
+          <div className="absolute inset-0" style={{ backgroundColor: COLORS.main, opacity: 0.7 }}></div> 
+        </div>
+  
+        <img
+          src={ASUKA_IMAGE_URL} 
+          alt="桜井明日香のバスケットボール姿" 
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x900/1F3F5F/FFFFFF?text=IMAGE+ERROR"; }}
+          // モバイルでも画面に収まるよう、最大幅と位置を調整
+          className="absolute bottom-0 z-10 w-2/3 max-w-xs md:w-1/3 md:max-w-sm object-contain transition-transform duration-1000 ease-out" 
+        />
+  
+        <div className="relative z-20 text-center px-4 pt-24 md:pt-32">
+            <p className="text-white text-base md:text-xl font-bold tracking-widest mb-3 opacity-80">SEIO BASKETBALL DIARY</p>
+            
+            {/* 一人称「ボク」の使用 */}
+            <h1 className="text-white text-3xl sm:text-5xl md:text-7xl font-extrabold leading-snug drop-shadow-2xl">
+                <span style={{ color: COLORS.accent }}>ボク</span>の、今日の
+                <br />
+                バスケとアツい覚悟。
+            </h1>
+        </div>
+  
+        <div className="absolute bottom-10 z-20">
+          <p className="text-white text-lg font-bold animate-bounce opacity-90">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 mx-auto">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 17.25-4.5-4.5-4.5 4.5m4.5-16.5v12" />
+              </svg>
+              SCROLL
+          </p>
+        </div>
+  
+      </section>
+    );
+  };
+
+// フッター
+const Footer = () => (
+    <footer className="bg-[#1F3F5F] py-6 mt-10">
+        <div className="max-w-5xl mx-auto px-4 text-center text-white text-xs opacity-80">
+            <p>&copy; {new Date().getFullYear()} Seio Basketball Diary. All Rights Reserved.</p>
+            <p>Design inspired by Sakurai Asuka's determination.</p>
+        </div>
+    </footer>
+);
+
+
+// --- [ 4. メイン App コンポーネント ] ---
+
+const App = () => {
+    const [userId, setUserId] = useState(null);
+    const [userName, setUserName] = useState(GUEST_NAME); 
+    // 編集モードの状態をトップレベルで管理
+    const [isEditingMode, setIsEditingMode] = useState(false);
+    
+    const isOwner = userName === OWNER_EMAIL;
+
+    // Firebase認証処理
+    const signIn = useCallback(async () => {
+        if (!auth) return;
+        try {
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+                console.log("Firebase: Signed in with Custom Token.");
+            } else {
+                await signInAnonymously(auth);
+                console.log("Firebase: Signed in Anonymously.");
+            }
+        } catch (error) {
+            console.error("🚨 Authentication failed during sign-in attempt:", error);
+        }
+    }, []); 
+
+    // 認証状態の監視と処理
+    useEffect(() => {
+        if (!auth) return;
+
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setUserId(user.uid);
+                console.log("Firebase: Auth state changed. User ID set:", user.uid);
+            } else {
+                // ユーザーがいない場合はサインインを試みる
+                await signIn();
+            }
+        });
+
+        return () => unsubscribeAuth();
+    }, [auth, signIn]);
+    
+    // モバイル用固定ボタンの表示/非表示フラグ
+    const showFixedButton = isOwner; 
+    
+    return (
+        <div className="min-h-screen antialiased text-gray-900 font-sans">
+            <Header 
+                userName={userName} 
+                setUserName={setUserName} 
+                userId={userId} 
+            />
+            {/* pt-16でヘッダー下のスペースを確保。モバイルの固定フッターのpb-20を適用/解除 */}
+            <main className={`pt-16 ${showFixedButton && 'pb-20 lg:pb-0'}`}> 
+                <HeroSection />
+                <DiaryCalendarSection 
+                    userId={userId} 
+                    isOwner={isOwner} 
+                    isEditingMode={isEditingMode} 
+                    setIsEditingMode={setIsEditingMode} 
+                />
+            </main>
+            <Footer />
+        </div>
+    );
+};
+
+export default App;
