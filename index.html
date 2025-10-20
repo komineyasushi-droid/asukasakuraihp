@@ -1,37 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- 相対パスで読み込むように修正 -->
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" /> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>明日香の日記</title>
-  </head>
-  <body>
-    <div id="root"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEIO DIARY | 青春とバスケの物語</title>
     
-    <!-- ここからFirebaseライブラリの読み込みを追加 -->
-    <!-- 1. Firebase App本体の読み込み -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-      window.firebase = window.firebase || {};
-      window.firebase.initializeApp = initializeApp;
-    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
     
-    <!-- 2. Firebase Auth (認証) の読み込み -->
-    <script type="module">
-      import * as Auth from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-      window.firebase.auth = Auth;
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 3. Firebase Firestore (データベース) の読み込み -->
-    <script type="module">
-      import * as Firestore from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-      window.firebase.firestore = Firestore;
-    </script>
-    <!-- ここまで追加 -->
+    <style>
+      /* Google Font: Inter (標準設定) */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+        /* 背景にバスケットボールコートをイメージしたパターンを薄く適用 */
+        background-color: #F8F8FF; /* スタイリッシュな白 */
+        background-image: radial-gradient(#d3d3d3 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      
+      /* アニメーションの定義 */
+      @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10%); }
+      }
+      .animate-bounce-slow {
+        animation: bounce-slow 4s infinite ease-in-out;
+      }
+      
+      /* モバイルメニュー（左寄せ、幅50%に縮小、隠す時は左外へ） */
+      #mobile-menu {
+          position: fixed;
+          top: 56px; /* ナビゲーションバーの高さに合わせる */
+          left: 0;
+          height: calc(100% - 56px); /* 画面全体 - ナビゲーションバーの高さ */
+          width: 50%; /* 幅を50%に設定 */
+          transform: translateX(-100%); /* 初期状態で画面外に配置 */
+          transition: transform 0.3s ease-in-out;
+          z-index: 50; /* ナビより下、コンテンツより上 */
+      }
 
-    <!-- 相対パスで読み込むように修正 -->
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
+      /* メニューが表示されている状態 */
+      #mobile-menu.menu-open {
+          transform: translateX(0);
+      }
+      /* モバイルでリンクをフル幅に */
+      #mobile-menu a {
+          width: 100%;
+      }
+    </style>
+
+    <script>
+      // Tailwind CSS のカスタム設定
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // 以前の日記アプリで定義した配色を継承
+              'main-color': '#B0E0E6',       // 淡い青 (Powder Blue)
+              'accent-color': '#FF7F50',     // 情熱のアクセント (Coral)
+              'dark-color': '#1F3F5F',       // 濃い青 (Midnight Blue)
+              'owner-pink': '#EC4899',       // オーナーモードのピンク
+              'theme-blue': '#00AEEF',       // ユニフォームブルー
+            },
+            boxShadow: {
+              'sporty': '0 15px 30px rgba(0, 174, 239, 0.4)',
+              'soft': '0 10px 20px rgba(0,0,0,0.05)',
+            }
+          }
+        }
+      }
+    </script>
+    
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const button = document.getElementById('menu-button');
+            
+            // クラスを切り替えてスライドアニメーションを制御
+            menu.classList.toggle('menu-open');
+            
+            // ボタンのアイコンを切り替える (三点リーダー)
+            const isOpen = menu.classList.contains('menu-open');
+            if (isOpen) {
+                // メニューが開いた状態 (Xアイコン)
+                button.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            } else {
+                // メニューが閉じた状態 (縦三点リーダーアイコン)
+                button.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>';
+            }
+        }
+    </script>
+
+</head>
+<body class="text-gray-900 min-h-screen">
+
+    <!-- ナビゲーションバー (sticky) -->
+    <nav class="bg-dark-color sticky top-0 z-20 shadow-lg border-b-4 border-theme-blue">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14">
+            
+                <div class="flex items-center">
+                    <!-- モバイルメニューボタン -->
+                    <div class="sm:hidden flex items-center">
+                        <button id="menu-button" onclick="toggleMenu()" class="text-white hover:text-accent-color p-1 rounded-md transition duration-200 mr-2">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                    </div>
+
+                    <a href="index.html" class="flex-shrink-0 text-xl sm:text-xl font-black text-white tracking-wider">
+                        SEIO <span class="text-accent-color">DIARY</span> 
+                    </a>
+                </div>
+                
+                <!-- デスクトップメニュー -->
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
+                    <a href="index.html" class="text-gray-200 hover:text-accent-color transition duration-150 relative group py-2 px-3 text-sm font-medium rounded-md">
+                        ホーム
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent-color transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </a>
+                    <a href="seiodaily.html" class="bg-theme-blue text-white hover:bg-theme-blue/80 px-4 py-2 text-sm font-bold rounded-full shadow-md transition duration-200">
+                        ボクの日記（プレイ中）
+                    </a>
+                    <a href="#" class="text-gray-200 hover:text-accent-color transition duration-150 relative group py-2 px-3 text-sm font-medium rounded-md">
+                        プロジェクト概要
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent-color transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    </a>
+                </div>
+            </div>
+    </div>
+    
+    <!-- モバイルメニューパネル -->
+    <div id="mobile-menu" class="sm:hidden bg-dark-color/95 pt-2 shadow-2xl">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="index.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-theme-blue/70 transition duration-150 border-l-4 border-transparent hover:border-accent-color">
+                    ホーム
+                </a>
+                <a href="seiodaily.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-theme-blue hover:bg-theme-blue/80 transition duration-150 border-l-4 border-accent-color shadow-inner">
+                    ボクの日記（プレイ中）
+                </a>
+                <a href="#" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-theme-blue/70 transition duration-150 border-l-4 border-transparent hover:border-accent-color">
+                    プロジェクト概要
+                </a>
+            </div>
+    </div>
+    </nav>
+
+    <main>
+        
+        <!-- ヒーローセクション -->
+        <section class="relative bg-main-color py-8 md:py-12 lg:py-16 overflow-hidden shadow-inner">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid md:grid-cols-2 items-center gap-4 md:gap-8">
+                
+                <div class="text-left md:text-left">
+                    <p class="text-xs sm:text-sm font-semibold text-accent-color mb-0.5 uppercase tracking-wider">SEISHUN & PASSION</p>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-dark-color leading-tight mb-2">
+                        <span class="text-theme-blue">青春</span>と<br>
+                        <span class="text-accent-color">情熱</span>の記録
+                    </span>
+                    </h1>
+                    <p class="text-xs sm:text-sm lg:text-base text-gray-700 mb-4 max-w-full md:max-w-none">
+                        「努力、汗、そして成長。これが、**ボク**のすべてだ。」
+                        日々の奮闘を綴る、バスケットボール日記プロジェクト。
+                    </p>
+                    
+                    <a href="seiodaily.html" 
+                        class="inline-block bg-theme-blue text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 rounded-full shadow-sporty 
+                              hover:bg-theme-blue/90 transform hover:scale-105 transition duration-300 ease-in-out text-xs sm:text-sm">
+                        ボクの日記を読む
+                        <span class="ml-1">🏀</span>
+                    </a>
+                </div>
+
+                <!-- 飾り用のバスケットボールSVG -->
+                <div class="hidden md:flex justify-center items-center">
+                    <svg class="w-full max-w-[150px] h-auto text-theme-blue opacity-80 animate-bounce-slow" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="3" stroke-dasharray="1 5"/>
+                        <path d="M 50 5 C 75 25, 75 75, 50 95" stroke="currentColor" stroke-width="2"/>
+                        <path d="M 50 5 C 25 25, 25 75, 50 95" stroke="currentColor" stroke-width="2"/>
+                        <path d="M 5 50 H 95" stroke="currentColor" stroke-width="2"/>
+                        <path d="M 50 95 C 60 98, 70 98, 75 95 L 25 95 Z" fill="currentColor" opacity="0.1"/>
+                    </svg>
+                </div>
+            </div>
+            <!-- 背景のぼかし装飾 -->
+            <div class="absolute top-0 right-0 w-24 h-24 bg-accent-color opacity-10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-32 h-32 bg-theme-blue opacity-10 rounded-full blur-3xl"></div>
+        </section>
+
+        <!-- 特徴セクション -->
+        <section class="py-8 md:py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-center text-dark-color mb-5 sm:mb-6">
+                    ボクの日記に綴られたもの
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-4 sm:gap-4">
+                    <!-- カード 1 -->
+                    <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
+                        <div class="text-xl sm:text-2xl text-theme-blue mb-1">🏋️</div>
+                        <h3 class="text-sm sm:text-base font-bold mb-0.5">日々の練習と汗</h3>
+                        <p class="text-gray-600 text-xs">
+                            今日のフットワーク、シュート練習、体力トレーニングの記録。苦しい時も、それを乗り越えた瞬間の喜びも、全て正直に書いている。
+                        </p>
+                    </div>
+
+                    <!-- カード 2 -->
+                    <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
+                        <div class="text-xl sm:text-2xl text-accent-color mb-1">🏆</div>
+                        <h3 class="text-sm sm:text-base font-bold mb-0.5">勝利と敗北の軌跡</h3>
+                        <p class="text-gray-600 text-xs">
+                            強豪校との激戦、チームメイトとの連携。試合で感じた熱い思いや、敗北から学んだ教訓を、忘れないように書き留めている。
+                        </p>
+                    </div>
+
+                    <!-- カード 3 -->
+                    <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
+                        <div class="text-xl sm:text-2xl text-owner-pink mb-1">🤝</div>
+                        <h3 class="text-sm sm:text-base font-bold mb-0.5">仲間と未来への誓い</h3>
+                        <p class="text-gray-600 text-xs">
+                            バスケを通じて得た友情、そして夢の実現に向けた具体的な目標。明日香（**ボク**）が未来の自分へ宛てたメッセージがここにある。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- CTAボタン -->
+                <div class="text-center mt-6">
+                    <a href="seiodaily.html" 
+                        class="inline-block bg-accent-color text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-accent-color/50 
+                              hover:bg-accent-color/90 transform hover:scale-105 transition duration-300 ease-in-out text-sm sm:text-base">
+                        今すぐ日記を読む！
+                        <span class="ml-1">🔥</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 名言セクション -->
+        <section class="py-6 bg-dark-color/95">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-sm md:text-xl italic font-light text-white leading-snug">
+                    「コートの上では、過去の自分は関係ない。
+                    <span class="block mt-1.5 font-extrabold text-accent-color text-base md:text-2xl not-italic">
+                        ボクは、いつだって今日が最高だ。
+                    </span>」
+                </h2>
+                <p class="mt-2 text-white/70 text-xs font-medium">— SEIO #4 明日香</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-gray-100 py-2 text-center text-gray-500 text-xs border-t border-gray-200">
+        &copy; 2025 SEIO DIARY Project. All rights reserved. | Produced by ボクのチーム
+    </footer>
+
+</body>
 </html>
