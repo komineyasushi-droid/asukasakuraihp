@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -33,7 +33,7 @@
               'main-color': '#B0E0E6',
               'accent-color': '#FF7F50', // 明るいアクセントカラー
               'dark-color': '#1F3F5F',
-              'owner-pink': '#EC4899', // オーナー編集用のピンク (カスタム追加)
+              'owner-pink': '#EC4899', // ※ピンク警告回避のため、JSX側では直接使わない
               'theme-blue': '#00AEEF',
             },
             boxShadow: {
@@ -793,14 +793,14 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
                     setIsEditingMode(prev => !prev);
                 }}
                 title={isEditingMode ? '閲覧モードに戻る' : `『${formatDate(selectedDate)}』の日記を編集/作成`}
-                // ピンク警告解消のため、動的なstyle指定を廃止し、カスタムクラスを適用
+                // 🚨 修正後のクラス名 🚨
                 className={`
                     w-full text-white font-bold px-6 py-3 rounded-xl transition duration-200 shadow-xl 
                     flex items-center justify-center text-lg whitespace-nowrap
                     ${isEditingMode 
-                        // 編集中はカスタムピンク
-                        ? 'bg-owner-pink hover:bg-owner-pink/90 active:bg-owner-pink/80 transform scale-[0.98]' 
-                        // 通常時はアクセントカラー
+                        // 警告回避のため、Tailwind標準の pink-600 を使用
+                        ? 'bg-pink-600 hover:bg-pink-700 active:bg-pink-800 transform scale-[0.98]' 
+                        // 通常時はカスタムカラーの bg-accent-color を使用
                         : `bg-accent-color hover:bg-accent-color/90 active:bg-accent-color/80 transform hover:scale-[1.01]`}
                 `}
             >
@@ -819,7 +819,7 @@ const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode
 };
 
 
-// HeroSectionコンポーネント (略)
+// HeroSectionコンポーネント
 const HeroSection = () => {
     const ASUKA_IMAGE_URL = "https://placehold.co/600x900/1F3F5F/FFFFFF?text=SAKURAI+ASUKA"; 
     const GYM_BG_URL = "https://placehold.co/1920x1080/B0E0E6/1F3F5F?text=BASKETBALL+COURT+BG"; 
@@ -868,7 +868,7 @@ const HeroSection = () => {
     );
   };
 
-// フッター (略)
+// フッター
 const Footer = () => (
     <footer className="bg-[#1F3F5F] py-6 mt-10">
         <div className="max-w-5xl mx-auto px-4 text-center text-white text-xs opacity-80">
