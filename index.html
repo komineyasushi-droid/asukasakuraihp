@@ -96,31 +96,28 @@
 </head>
 <body class="text-gray-900 min-h-screen">
 
-    <!-- ナビゲーションバー (sticky) -->
     <nav class="bg-dark-color sticky top-0 z-20 shadow-lg border-b-4 border-theme-blue">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-14">
             
                 <div class="flex items-center">
-                    <!-- モバイルメニューボタン -->
                     <div class="sm:hidden flex items-center">
                         <button id="menu-button" onclick="toggleMenu()" class="text-white hover:text-accent-color p-1 rounded-md transition duration-200 mr-2">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                         </button>
                     </div>
 
-                    <a href="index.html" class="flex-shrink-0 text-xl sm:text-xl font-black text-white tracking-wider">
+                    <a href="/seio-basketball/index.html" class="flex-shrink-0 text-xl sm:text-xl font-black text-white tracking-wider">
                         SEIO <span class="text-accent-color">DIARY</span> 
                     </a>
                 </div>
                 
-                <!-- デスクトップメニュー -->
                 <div class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
-                    <a href="index.html" class="text-gray-200 hover:text-accent-color transition duration-150 relative group py-2 px-3 text-sm font-medium rounded-md">
+                    <a href="/seio-basketball/index.html" class="text-gray-200 hover:text-accent-color transition duration-150 relative group py-2 px-3 text-sm font-medium rounded-md">
                         ホーム
                         <span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent-color transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
                     </a>
-                    <a href="seiodaily.html" class="bg-theme-blue text-white hover:bg-theme-blue/80 px-4 py-2 text-sm font-bold rounded-full shadow-md transition duration-200">
+                    <a href="/seio-basketball/seiodaily.html" class="bg-theme-blue text-white hover:bg-theme-blue/80 px-4 py-2 text-sm font-bold rounded-full shadow-md transition duration-200">
                         ボクの日記（プレイ中）
                     </a>
                     <a href="#" class="text-gray-200 hover:text-accent-color transition duration-150 relative group py-2 px-3 text-sm font-medium rounded-md">
@@ -131,13 +128,12 @@
             </div>
     </div>
     
-    <!-- モバイルメニューパネル -->
     <div id="mobile-menu" class="sm:hidden bg-dark-color/95 pt-2 shadow-2xl">
             <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="index.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-theme-blue/70 transition duration-150 border-l-4 border-transparent hover:border-accent-color">
+                <a href="/seio-basketball/index.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-theme-blue/70 transition duration-150 border-l-4 border-transparent hover:border-accent-color">
                     ホーム
                 </a>
-                <a href="seiodaily.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-theme-blue hover:bg-theme-blue/80 transition duration-150 border-l-4 border-accent-color shadow-inner">
+                <a href="/seio-basketball/seiodaily.html" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-theme-blue hover:bg-theme-blue/80 transition duration-150 border-l-4 border-accent-color shadow-inner">
                     ボクの日記（プレイ中）
                 </a>
                 <a href="#" onclick="toggleMenu()" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-theme-blue/70 transition duration-150 border-l-4 border-transparent hover:border-accent-color">
@@ -149,7 +145,6 @@
 
     <main>
         
-        <!-- ヒーローセクション -->
         <section class="relative bg-main-color py-8 md:py-12 lg:py-16 overflow-hidden shadow-inner">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid md:grid-cols-2 items-center gap-4 md:gap-8">
                 
@@ -165,7 +160,7 @@
                         日々の奮闘を綴る、バスケットボール日記プロジェクト。
                     </p>
                     
-                    <a href="seiodaily.html" 
+                    <a href="/seio-basketball/seiodaily.html" 
                         class="inline-block bg-theme-blue text-white font-bold py-2 px-5 sm:py-2.5 sm:px-6 rounded-full shadow-sporty 
                               hover:bg-theme-blue/90 transform hover:scale-105 transition duration-300 ease-in-out text-xs sm:text-sm">
                         ボクの日記を読む
@@ -173,7 +168,6 @@
                     </a>
                 </div>
 
-                <!-- 飾り用のバスケットボールSVG -->
                 <div class="hidden md:flex justify-center items-center">
                     <svg class="w-full max-w-[150px] h-auto text-theme-blue opacity-80 animate-bounce-slow" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="3" stroke-dasharray="1 5"/>
@@ -184,12 +178,10 @@
                     </svg>
                 </div>
             </div>
-            <!-- 背景のぼかし装飾 -->
             <div class="absolute top-0 right-0 w-24 h-24 bg-accent-color opacity-10 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-theme-blue opacity-10 rounded-full blur-3xl"></div>
         </section>
 
-        <!-- 特徴セクション -->
         <section class="py-8 md:py-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-xl sm:text-2xl font-bold text-center text-dark-color mb-5 sm:mb-6">
@@ -197,7 +189,6 @@
                 </h2>
                 
                 <div class="grid md:grid-cols-3 gap-4 sm:gap-4">
-                    <!-- カード 1 -->
                     <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
                         <div class="text-xl sm:text-2xl text-theme-blue mb-1">🏋️</div>
                         <h3 class="text-sm sm:text-base font-bold mb-0.5">日々の練習と汗</h3>
@@ -206,7 +197,6 @@
                         </p>
                     </div>
 
-                    <!-- カード 2 -->
                     <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
                         <div class="text-xl sm:text-2xl text-accent-color mb-1">🏆</div>
                         <h3 class="text-sm sm:text-base font-bold mb-0.5">勝利と敗北の軌跡</h3>
@@ -215,7 +205,6 @@
                         </p>
                     </div>
 
-                    <!-- カード 3 -->
                     <div class="bg-white p-3 rounded-xl shadow-soft border border-gray-100 hover:shadow-lg transition duration-300 text-left">
                         <div class="text-xl sm:text-2xl text-owner-pink mb-1">🤝</div>
                         <h3 class="text-sm sm:text-base font-bold mb-0.5">仲間と未来への誓い</h3>
@@ -225,9 +214,8 @@
                     </div>
                 </div>
                 
-                <!-- CTAボタン -->
                 <div class="text-center mt-6">
-                    <a href="seiodaily.html" 
+                    <a href="/seio-basketball/seiodaily.html" 
                         class="inline-block bg-accent-color text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-accent-color/50 
                               hover:bg-accent-color/90 transform hover:scale-105 transition duration-300 ease-in-out text-sm sm:text-base">
                         今すぐ日記を読む！
@@ -237,7 +225,6 @@
             </div>
         </section>
 
-        <!-- 名言セクション -->
         <section class="py-6 bg-dark-color/95">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="text-sm md:text-xl italic font-light text-white leading-snug">
@@ -251,7 +238,6 @@
         </section>
     </main>
 
-    <!-- フッター -->
     <footer class="bg-gray-100 py-2 text-center text-gray-500 text-xs border-t border-gray-200">
         &copy; 2025 SEIO DIARY Project. All rights reserved. | Produced by ボクのチーム
     </footer>
