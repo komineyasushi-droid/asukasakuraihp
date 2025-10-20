@@ -1,4 +1,4 @@
-﻿// ファイル名: App.jsx
+// ファイル名: App.jsx
 // 用途: アップロードされたseiodaily.htmlの内容をReactコンポーネントとして再構成し、
 //       ボクの日記アプリのメインロジックとして使用します。
 //
@@ -193,10 +193,15 @@ const UserIdentification = ({ userName, setUserName, userId }) => {
 const Header = ({ userName, setUserName, userId }) => (
   <header className="fixed top-0 left-0 right-0 z-50 bg-[#1F3F5F] bg-opacity-95 shadow-lg h-16">
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-full">
-      <h1 className="text-lg sm:text-xl font-bold text-white tracking-widest whitespace-nowrap">
-        SEIO DIARY
-      </h1>
+      {/* 修正済み: SEIO DIARY ロゴを /seio-basketball/index.html へのリンクに変更 */}
+      <a href="/seio-basketball/index.html" className="flex-shrink-0 text-lg sm:text-xl font-bold text-white tracking-widest whitespace-nowrap hover:text-[#FF7F50] transition duration-150">
+        SEIO <span className="text-[#FF7F50]">DIARY</span>
+      </a>
       <nav className="hidden md:flex space-x-6">
+        {/* 修正済み: ホームへ戻るリンクを追加 */}
+        <a href="/seio-basketball/index.html" className="text-white hover:text-[#FF7F50] transition duration-150 font-medium">
+            ホームへ戻る
+        </a>
         {/* メニュー項目 (ダミーリンク) */}
         {['Diary', 'Profile', 'Gallery', 'About'].map((item) => (
           <a key={item} href={`#${item.toLowerCase()}`} className="text-white hover:text-[#FF7F50] transition duration-150 font-medium">
