@@ -1,37 +1,7 @@
-﻿{
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "startCommand": "npm run start",
-        "buildCommand": "npm run build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/[^.]+",
-      "dest": "/",
-      "status": 200
-    },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
-  ]
-}
-```eof
-
-### 📌 重要な確認事項
-
-この設定ファイルを使用する場合、**`package.json`**ファイルに、以下の`"build": "vite build"`という行が必ず含まれていることを確認してください。
-
-```json
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",  <-- **この行があることを確認**
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
-  },
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="lib" path="src/firebase-admin-9.7.0.jar"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>
