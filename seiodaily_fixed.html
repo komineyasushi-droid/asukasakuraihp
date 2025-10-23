@@ -6,10 +6,12 @@
     <title>SEIO DIARY (明日香の日記)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     
     <script>
         tailwind.config = {
@@ -23,37 +25,45 @@
             }
         }
     </script>
+
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // ★★★ Web環境で動かすためのグローバル変数の定義（仮の値） ★★★
-        const __firebase_config = '{}'; // 動作させるには正しいJSON文字列が必要
-        const __initial_auth_token = null;
-        const __app_id = 'default-app-id';
+        // =======================================================================
+        // ★★★ 編集エリア (今日始めた人でもここだけ編集すればOK！) ★★★
+        // =======================================================================
 
-        // 以下、君の提供した seiodaily.html の内容を修正・再構成したもの
+        // 📝 (1) オーナー認証情報: 日記を編集できる人のメールアドレスを設定
+        //     （ここに設定したメールアドレスを、閲覧時に「名前またはメール」欄に入力するとオーナーモードになります）
+        const OWNER_EMAIL_ADDRESS = "komineyasushi@gmail.com";
+        
+        // 🚨 (2) Firebase設定: ここに自分のプロジェクトの config JSON を設定
+        //     （Firebaseを使わない場合は、中身を空のJSON `{}` のままにしておくと「閲覧専用モード」になります）
+        const FIREBASE_CONFIG = {
+             apiKey: "YOUR_API_KEY",
+             authDomain: "YOUR_AUTH_DOMAIN",
+             projectId: "YOUR_PROJECT_ID",
+             storageBucket: "YOUR_STORAGE_BUCKET",
+             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+             appId: "YOUR_APP_ID"
+        };
+        
+        // =======================================================================
+        // ★★★ Reactコンポーネント (ここから下は、いじる必要はないさーね) ★★★
+        // =======================================================================
 
         import React, { useState, useEffect, useMemo, useCallback } from 'react';
+        
+        // FirebaseのインポートはCDNで提供されるグローバル変数から取得する形式に変更
+        const { initializeApp } = firebase.app;
+        const { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } = firebase.auth;
+        const { getFirestore, doc, onSnapshot, setDoc, setLogLevel } = firebase.firestore;
 
-        import { initializeApp } from 'firebase/app';
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-        import { getFirestore, doc, onSnapshot, setDoc, setLogLevel } from 'firebase/firestore';
-
-        // --- [ 1. 環境変数とグローバル設定の取得 ] ---
-
-        // Canvas環境から提供されるグローバル変数を取得 (必須)
-        const FIREBASE_CONFIG = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const INITIAL_AUTH_TOKEN = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // オーナーメールアドレスはハードコードされたものを使用 (必要に応じて変更可能)
-        const OWNER_EMAIL_ADDRESS = "komineyasushi@gmail.com"; 
 
         const GUEST_NAME = "ゲスト";
-
-        // Firestoreのログレベルを設定 (デバッグ用)
-        // setLogLevel('debug'); 
+        const APP_ID = FIREBASE_CONFIG.appId || 'default-app-id'; // Firebase Configから取得できない場合のフォールバック
 
         // Tailwind CSSで使用するカスタムカラー (インラインスタイルで使用)
         const COLORS = {
@@ -67,6 +77,7 @@
 
         const formatDate = (date) => {
             const d = new Date(date);
+            // 日本時間に合わせて日付をフォーマット (JSTを意識したコードは不要だが、表現として)
             return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
         };
 
@@ -262,7 +273,7 @@
                     <div className="md:hidden">
                         <button type="button" onClick={toggleMenu} className="inline-flex items-center justify-center p-2 rounded-md text-white hover:opacity-80 focus:outline-none" aria-expanded="false">
                             <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path strokeLinecap="round" strokeLineline join="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
                     </div>
@@ -305,8 +316,20 @@
         /**
          * 日記表示コンポーネント (閲覧モード)
          */
-        const renderDiaryViewer = ({ currentDiary, loading, selectedDate }) => (
+        const renderDiaryViewer = ({ currentDiary, loading, selectedDate, hasFirebase }) => (
             <div className="w-full bg-white p-6 md:p-8 rounded-xl shadow-2xl relative transition duration-300 hover:shadow-3xl">
+
+                {/* Firebase未設定の場合の警告 */}
+                {!hasFirebase && (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                        <p className="font-bold">🚨 閲覧専用モード</p>
+                        <p className="text-sm">
+                            **FIREBASE_CONFIG** が未設定です。日記データの読み書きはできません。
+                            このHTMLを編集し、設定を記述すれば完全な機能が使えます。
+                        </p>
+                    </div>
+                )}
+
 
                 {/* ロード中のスピナー */}
                 {loading ? (
@@ -462,7 +485,7 @@
 
 
         // 日記の表示とカレンダーUIを統合したメインセクション
-        const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode, dbInstance }) => {
+        const DiaryCalendarSection = ({ userId, isOwner, isEditingMode, setIsEditingMode, dbInstance, hasFirebase }) => {
             const today = useMemo(() => new Date(), []);
             const [selectedDate, setSelectedDate] = useState(today);
             const [currentDiary, setCurrentDiary] = useState(null);
@@ -482,16 +505,19 @@
 
             // --- [ A. Firestoreデータ取得ロジック ] ---
             useEffect(() => {
-                // 認証待ち、またはDB未初期化の場合は早期リターン
-                if (!dbInstance || !userId) {
+                // Firebaseが未設定の場合は、ローディングをスキップし、空のデータで表示
+                if (!hasFirebase || !dbInstance || !userId) {
                     setLoading(false);
+                    setCurrentDiary(null);
                     if (isOwner) {
-                        setSaveMessage('認証を待っています...');
+                        setSaveMessage('データベースは接続されていません。');
+                        setIsEditingMode(false);
                     }
                     return;
                 }
-
+                
                 setLoading(true);
+                setSaveMessage('データロード中...');
                 const docId = formatDate(selectedDate);
                 // プライベートデータパス: artifacts/{appId}/users/{userId}/diaries/{日付}
                 const docRef = doc(dbInstance, `artifacts/${APP_ID}/users/${userId}/diaries`, docId);
@@ -517,11 +543,12 @@
                 }, (error) => {
                     console.error("Firestore Snapshot Error:", error);
                     setLoading(false);
+                    if (isOwner) setSaveMessage(`🚨 データベースエラー: ${error.code}。ルールを確認してください。`);
                 });
 
                 return () => unsubscribeSnapshot();
 
-            }, [userId, selectedDate, isOwner, dbInstance]);
+            }, [userId, selectedDate, isOwner, dbInstance, hasFirebase]);
 
             // 編集内容の変更を監視し、未保存フラグを更新
             useEffect(() => {
@@ -545,7 +572,7 @@
 
             // --- [ B. 日記保存ロジック (オーナー専用) ] ---
             const handleSave = async () => {
-                if (!dbInstance || !userId) {
+                if (!hasFirebase || !dbInstance || !userId) {
                     setSaveMessage('🚨 データベース接続エラー、または未認証です。');
                     return;
                 }
@@ -677,260 +704,197 @@
                 if (isOwner) setIsEditingMode(false);
             };
 
-            // 【重要修正点】
-            const handleDayClick = (day) => { // dayは { date: Date, isCurrentMonth: boolean } オブジェクト
+            const handleDayClick = (day) => {
                 
-                // 別の月の日付はクリックしても反応しない（ここでは無効化）
-                if (!day.isCurrentMonth) {
-                    return;
-                }
-
                 // 未保存の変更チェック
                 if (!handleUnsavedChangeCheck(() => {})) return;
 
+                // 別の月の日付をクリックしたら、その月に移動するロジックを実装
                 setSelectedDate(day.date);
-                // クリックした日がカレンダーの表示月と異なっていれば、カレンダーも移動させる (ここでは isCurrentMonth のチェックで不要だが、念のため)
                 if (day.date.getMonth() !== currentMonth || day.date.getFullYear() !== currentYear) {
-                    setCurrentMonth(day.date.getMonth());
                     setCurrentYear(day.date.getFullYear());
+                    setCurrentMonth(day.date.getMonth());
                 }
+                
                 if (isOwner) setIsEditingMode(false);
             };
 
 
-            // --- [ D. メインレンダリング ] ---
+            const isSameDay = (d1, d2) => (
+                d1.getFullYear() === d2.getFullYear() &&
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
+            );
 
-            const isToday = (date) => formatDate(date) === formatDate(today);
-            const isSelected = (date) => formatDate(date) === formatDate(selectedDate);
+            // カレンダーの日付セル
+            const DayCell = ({ day }) => {
+                const date = day.date;
+                const isToday = isSameDay(date, today);
+                const isSelected = isSameDay(date, selectedDate);
+                const isCurrentMonth = day.isCurrentMonth;
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6; // 日曜:0, 土曜:6
+                
+                const dayClass = `
+                    text-center p-1.5 rounded-lg text-sm font-semibold cursor-pointer transition duration-150 relative
+                    ${isCurrentMonth ? '' : 'text-gray-400 opacity-60'}
+                    ${isSelected ? 'shadow-lg border-2 border-white' : 'hover:bg-gray-100'}
+                    ${isToday ? `ring-2 ring-${COLORS.ACCENT} bg-opacity-70 font-extrabold` : ''}
+                    ${isWeekend ? (date.getDay() === 0 ? 'text-red-500' : 'text-blue-500') : (isCurrentMonth ? 'text-gray-800' : '')}
+                `;
 
-            const currentMonthName = new Intl.DateTimeFormat('ja-JP', { month: 'long' }).format(getFirstDayOfMonth(currentYear, currentMonth));
+                return (
+                    <div
+                        key={formatDate(date)}
+                        className={dayClass}
+                        style={{ backgroundColor: isSelected ? COLORS.DARK : (isToday ? COLORS.MAIN : 'white') }}
+                        onClick={() => handleDayClick(day)}
+                    >
+                        {date.getDate()}
+                    </div>
+                );
+            };
+
 
             return (
-                <section id="diary" className="min-h-screen pb-20 lg:pb-10 px-3 md:px-6 pt-16" style={{ backgroundColor: COLORS.MAIN }}>
-                    <div className="max-w-5xl mx-auto py-8">
-                        <h2 
-                            className="text-3xl md:text-4xl font-extrabold mb-8 border-b-4 pb-2 inline-block pt-8 lg:pt-0"
-                            style={{ color: COLORS.DARK, borderColor: COLORS.ACCENT }}
-                        >
-                            {formatDate(selectedDate).replace(/-/g, '.')} の日記
-                        </h2>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        {/* 1. カレンダーセクション (左側) */}
+                        <div className="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-20">
+                            <h2 className="text-2xl font-bold mb-4 border-b pb-2" style={{ color: COLORS.DARK }}>📅 日付選択</h2>
+                            
+                            {/* 年月ナビゲーション */}
+                            <div className="flex justify-between items-center mb-4 space-x-2">
+                                {/* 年選択ドロップダウン */}
+                                <select 
+                                    value={currentYear} 
+                                    onChange={handleYearChange}
+                                    className="p-2 border rounded-lg shadow-sm text-sm"
+                                >
+                                    {YEAR_OPTIONS.map(opt => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </select>
 
-                        <div className="mb-6 flex justify-end items-center space-x-4">
-                            <label htmlFor="year-select" className="text-base font-medium" style={{ color: COLORS.DARK }}>年選択:</label>
-                            <select
-                                id="year-select"
-                                value={currentYear}
-                                onChange={handleYearChange}
-                                className="p-2 border border-gray-300 rounded-lg shadow-md transition text-sm focus:ring-4"
-                                style={{ borderColor: COLORS.ACCENT, outlineColor: COLORS.ACCENT }}
-                            >
-                                {YEAR_OPTIONS.map(option => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                {/* 月ナビゲーション */}
+                                <div className="flex space-x-1">
+                                    <button onClick={() => changeMonth(-1)} className="p-2 rounded-full text-white bg-dark-color hover:opacity-80 transition">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span className="text-xl font-bold p-2 whitespace-nowrap" style={{ color: COLORS.ACCENT }}>
+                                        {currentMonth + 1}月
+                                    </span>
+                                    <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-white bg-dark-color hover:opacity-80 transition">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {/* カレンダー本体 */}
+                            <div className="grid grid-cols-7 gap-1 text-xs">
+                                {['日', '月', '火', '水', '木', '金', '土'].map((day, index) => (
+                                    <div key={day} className={`text-center font-bold pb-1 ${index === 0 ? 'text-red-500' : (index === 6 ? 'text-blue-500' : 'text-gray-500')}`}>
+                                        {day}
+                                    </div>
                                 ))}
-                            </select>
+                                {daysInMonth.map((day) => (
+                                    <DayCell key={formatDate(day.date)} day={day} />
+                                ))}
+                            </div>
+
+                            {/* オーナー編集ボタン */}
+                            {isOwner && hasFirebase && (
+                                <div className="mt-6 border-t pt-4">
+                                    <button
+                                        onClick={() => handleUnsavedChangeCheck(() => setIsEditingMode(true))}
+                                        className="w-full py-2 rounded-lg font-bold text-white shadow-md transition duration-200 hover:opacity-90"
+                                        style={{ backgroundColor: COLORS.OWNER }}
+                                    >
+                                        ✏️ {formatDate(selectedDate)} の日記を編集する
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
 
+                        {/* 2. 日記表示/編集セクション (右側) */}
+                        <div className="lg:col-span-2">
+                            <h2 className="text-2xl font-bold mb-4 border-b-2 border-accent-color pb-2" style={{ color: COLORS.ACCENT }}>
+                                📰 {formatDate(selectedDate)} の日記
+                            </h2>
 
-                        <div className="flex flex-col lg:flex-row gap-8">
-
-                            {/* 日記コンテンツエリア (左側) - オーナーはモードを切り替え */}
-                            {isOwner && isEditingMode
-                                ? renderDiaryEditor({
-                                    selectedDate,
-                                    handleSave,
-                                    isSaving,
-                                    saveMessage,
-                                    editorTitle,
-                                    setEditorTitle,
-                                    editorContent,
-                                    setEditorContent,
-                                    editorMood,
-                                    setEditorMood,
-                                    setIsEditingMode,
-                                    loading
+                            {/* 日記の表示または編集フォーム */}
+                            {isOwner && isEditingMode && hasFirebase ? (
+                                renderDiaryEditor({
+                                    selectedDate, handleSave, isSaving, saveMessage,
+                                    editorTitle, setEditorTitle, editorContent, setEditorContent,
+                                    editorMood, setEditorMood, setIsEditingMode, loading
                                 })
-                                : (
-                                    <div className="relative lg:w-2/3">
-                                        {renderDiaryViewer({
-                                            currentDiary,
-                                            loading,
-                                            selectedDate,
-                                        })}
-
-                                        {/* 【PC/タブレット向けの編集ボタン】: lgサイズ以上で表示 */}
-                                        {isOwner && !isEditingMode && (
-                                            <button
-                                                onClick={() => setIsEditingMode(true)}
-                                                className={`hidden lg:block absolute top-5 right-5 px-4 py-2 text-sm rounded-xl font-bold text-white transition duration-200 shadow-lg hover:opacity-90`}
-                                                style={{ backgroundColor: COLORS.OWNER }}
-                                                title={`『${formatDate(selectedDate)}』の日記を編集/作成`}
-                                            >
-                                                <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.862 4.487z" /></svg>
-                                                日記を編集する
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-
-                            {/* カレンダーUI (右側) */}
-                            <div className="lg:w-1/3 bg-white p-5 rounded-xl shadow-2xl">
-                                <div className="flex justify-between items-center mb-5">
-                                    <button
-                                        onClick={() => changeMonth(-1)}
-                                        className="p-1 rounded-full hover:bg-gray-100 transition"
-                                        style={{ color: COLORS.DARK }}
-                                        title="前月へ"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                                        </svg>
-                                    </button>
-                                    <h3 className="text-xl font-bold tracking-wider" style={{ color: COLORS.DARK }}>
-                                        {currentYear}年 {currentMonthName}
-                                    </h3>
-                                    <button
-                                        onClick={() => changeMonth(1)}
-                                        className="p-1 rounded-full hover:bg-gray-100 transition"
-                                        style={{ color: COLORS.DARK }}
-                                        title="次月へ"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-1">
-                                    <span className="text-red-500">日</span>
-                                    <span>月</span>
-                                    <span>火</span>
-                                    <span>水</span>
-                                    <span>木</span>
-                                    <span>金</span>
-                                    <span className="text-blue-500">土</span>
-                                </div>
-
-                                <div className="grid grid-cols-7 gap-1">
-                                    {daysInMonth.map((day, index) => {
-                                        const dayDate = day.date;
-                                        const isCurrent = day.isCurrentMonth;
-                                        const isDaySelected = isSelected(dayDate);
-                                        const isDayToday = isToday(dayDate);
-
-                                        let textColor = isCurrent ? 'text-gray-800' : 'text-gray-400';
-                                        if (dayDate.getDay() === 0) textColor = isCurrent ? 'text-red-500' : 'text-red-300';
-                                        if (dayDate.getDay() === 6) textColor = isCurrent ? 'text-blue-500' : 'text-blue-300';
-                                        // 選択中は上書き
-                                        if (isDaySelected) textColor = 'text-white';
-
-
-                                        return (
-                                            <div
-                                                key={index}
-                                                onClick={() => handleDayClick(day)} // 【重要修正】dayオブジェクト全体を渡すように変更
-                                                className={`
-                                                    w-full h-8 flex items-center justify-center rounded-full
-                                                    font-medium transition duration-150 relative text-xs cursor-pointer select-none
-                                                    ${isCurrent ? 'hover:bg-gray-100' : 'opacity-70'}
-                                                    ${isDaySelected ? 'shadow-md' : ''}
-                                                `}
-                                                style={{ backgroundColor: isDaySelected ? COLORS.ACCENT : 'transparent' }}
-                                            >
-                                                <span className={textColor}>
-                                                    {dayDate.getDate()}
-                                                </span>
-                                                {isDayToday && (
-                                                    <span className={`absolute bottom-0.5 h-1 w-1 rounded-full ${isDaySelected ? 'bg-white' : 'bg-red-500'}`}></span>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                                {/* モバイル向け編集ボタン */}
-                                {isOwner && !isEditingMode && (
-                                    <button
-                                        onClick={() => setIsEditingMode(true)}
-                                        className={`lg:hidden mt-6 w-full px-4 py-2 text-sm rounded-xl font-bold text-white transition duration-200 shadow-lg hover:opacity-90`}
-                                        style={{ backgroundColor: COLORS.OWNER }}
-                                        title={`『${formatDate(selectedDate)}』の日記を編集/作成`}
-                                    >
-                                        <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.862 4.487z" /></svg>
-                                        日記を編集する
-                                    </button>
-                                )}
-                            </div>
+                            ) : (
+                                renderDiaryViewer({ currentDiary, loading, selectedDate, hasFirebase })
+                            )}
                         </div>
                     </div>
-                </section>
+                </div>
             );
         };
 
-
-        const Footer = () => (
-            <footer 
-                className="py-6 mt-10 shadow-inner"
-                style={{ backgroundColor: `${COLORS.DARK}E0` }} // 濃い青を少し透明に
-            >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <p className="text-white text-sm opacity-80 font-serif tracking-wider">
-                        © 2024 SEIO DIARY - ボクの青春の記録
-                    </p>
-                    <p className="text-xs mt-1" style={{ color: COLORS.ACCENT }}>
-                        Powered by Gemini AI (React + Firestore)
-                    </p>
-                </div>
-            </footer>
-        );
-
-
-        const App = () => { // exportを削除し、const宣言に変更
-            const [dbInstance, setDbInstance] = useState(null);
+        /**
+         * メインアプリケーションコンポーネント
+         */
+        const App = () => {
+            const hasFirebase = FIREBASE_CONFIG && Object.keys(FIREBASE_CONFIG).length > 1;
+            
+            // Firebase State
+            const [appInstance, setAppInstance] = useState(null);
             const [authInstance, setAuthInstance] = useState(null);
-            const [userId, setUserId] = useState(null);
-            const [isAuthReady, setIsAuthReady] = useState(false);
+            const [dbInstance, setDbInstance] = useState(null);
+            const [userId, setUserId] = useState(null); // Firebase Authentication UID
+            const [isAuthReady, setIsAuthReady] = useState(!hasFirebase); // Firebaseがない場合は即座にReadyにする
+            
+            // User State
             const [userName, setUserName] = useState(GUEST_NAME);
-            const [isEditingMode, setIsEditingMode] = useState(false);
-
             const isOwner = userName === OWNER_EMAIL_ADDRESS;
-
-            // --- [ Firebase 初期化と認証処理 ] ---
+            const [isEditingMode, setIsEditingMode] = useState(false); // オーナーのみ編集モードに切り替え可能
+            
+            // --- [ 1. Firebase 初期化と認証 ] ---
             useEffect(() => {
-                // 動作確認のため、Firebase設定が空の場合は警告のみ
-                if (!FIREBASE_CONFIG || Object.keys(FIREBASE_CONFIG).length === 0) {
-                    console.error("Firebase config is missing. Running without persistent database.");
-                    setUserId(crypto.randomUUID());
-                    setIsAuthReady(true);
-                    return;
-                }
+                if (!hasFirebase) return;
 
                 try {
+                    // Firebase Appの初期化
                     const app = initializeApp(FIREBASE_CONFIG);
+                    setAppInstance(app);
+
+                    // AuthとFirestoreのインスタンスを取得
                     const auth = getAuth(app);
                     const db = getFirestore(app);
-                    
-                    setDbInstance(db);
                     setAuthInstance(auth);
+                    setDbInstance(db);
 
-                    const authenticate = async () => {
+                    // 匿名認証を試行
+                    const attemptAuth = async () => {
                         try {
-                            if (INITIAL_AUTH_TOKEN) {
-                                await signInWithCustomToken(auth, INITIAL_AUTH_TOKEN);
+                            // オーナーメールの場合は匿名認証はしない（オーナーは手動で名前を入力する）
+                            if (isOwner) {
+                                // ゲストとして認証を試みる (Firestoreの読み書きルールに影響)
+                                await signInAnonymously(auth);
                             } else {
                                 await signInAnonymously(auth);
                             }
-                        } catch (error) {
-                            console.error("Firebase Authentication Error:", error);
+                        } catch (e) {
+                            console.error("Firebase Authentication failed:", e);
                         }
                     };
-                    authenticate();
 
-                    // 認証状態の監視
+                    attemptAuth();
+
+                    // 認証状態の変更を監視
                     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
                         if (user) {
                             setUserId(user.uid);
                         } else {
-                            // 認証失敗時またはサインアウト時は匿名で継続 (ここでは不要だが念のため)
-                            setUserId(crypto.randomUUID()); 
+                            setUserId(null);
                         }
                         setIsAuthReady(true);
                     });
@@ -939,11 +903,10 @@
 
                 } catch (e) {
                     console.error("🚨 Firebase Initialization Error:", e);
-                    setUserId(crypto.randomUUID()); 
                     setIsAuthReady(true);
                 }
 
-            }, []); 
+            }, [isOwner, hasFirebase]); 
 
             // 認証が完了するまで、ローディングUIを表示
             if (!isAuthReady) {
@@ -969,18 +932,20 @@
                             isEditingMode={isEditingMode}
                             setIsEditingMode={setIsEditingMode}
                             dbInstance={dbInstance} // Firestoreインスタンスを渡す
+                            hasFirebase={hasFirebase} // Firebaseが設定されているか
                         />
                     </main>
-                    <Footer />
+                    <footer className="w-full p-4 text-center text-sm text-gray-500 border-t">
+                        <p>&copy; 2024 SEIO DIARY powered by React + Firebase. (明香はボクっ娘です)</p>
+                    </footer>
                 </div>
             );
         };
-        // export default App; を削除
 
-        // ★★★ ReactコンポーネントをDOMにレンダリングする ★★★
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
+        // React アプリケーションのレンダリング
+        const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
+
     </script>
 </body>
 </html>
