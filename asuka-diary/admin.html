@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖桜学園 - 管理者ページ（お知らせ更新）</title>
+    
+    <style>
+        /* ------------------------------------------------ */
+        /* ★デザインは変更なし、CSSは全てそのまま維持します。 */
+        /* ------------------------------------------------ */
+        :root {
+            --main-color: #A0C4FF;
+            --accent-color: #FF5A5F;
+            --bg-color: #F8F8FF;
+            --text-color: #333333;
+            --max-width: 900px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* -------------------------------------- */
+        /* ヘッダーとフッター（共通デザイン） */
+        /* -------------------------------------- */
+
+        .main-header {
+            background-color: var(--main-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '🏀';
+            position: absolute;
+            bottom: -10px;
+            right: 10%;
+            font-size: 50px;
+            opacity: 0.5;
+            animation: shoot 5s infinite linear;
+        }
+
+        @keyframes shoot {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+            50% { transform: translate(-100px, -100px) rotate(180deg); opacity: 0.8; }
+            100% { transform: translate(-200px, 0) rotate(360deg); opacity: 0.5; }
+        }
+
+        .main-header h1 {
+            margin-bottom: 5px;
+            font-size: 2.2em;
+        }
+
+        .main-footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #eeeeee;
+            color: #999;
+        }
+
+        /* -------------------------------------- */
+        /* 管理者ページ固有のデザイン */
+        /* -------------------------------------- */
+        
+        .admin-main {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .admin-title {
+            text-align: center;
+            color: var(--accent-color);
+            border-bottom: 3px dashed var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        /* -------------------------------------- */
+        /* フォームの共通デザイン */
+        /* -------------------------------------- */
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .submit-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px; /* 他のボタンとのスペース調整 */
+        }
+
+        .submit-button:hover {
+            background-color: #70A8FF;
+        }
+        
+        /* -------------------------------------- */
+        /* 記事リストと管理ボタンのデザイン */
+        /* -------------------------------------- */
+        
+        .article-list {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .article-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .article-info {
+            flex-grow: 1;
+        }
+        
+        .article-info span {
+            display: block;
+            font-size: 0.9em;
+        }
+        
+        .article-info .article-date {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 15px;
+        }
+        
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.2s;
+        }
+        
+        .edit-button {
+            background-color: #FFD700; /* ゴールド */
+            color: #333;
+        }
+        .edit-button:hover {
+            background-color: #E0C000;
+        }
+        
+        .delete-button {
+            background-color: #FF5A5F; /* 赤 */
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #E04A4F;
+        }
+
+        /* -------------------------------------- */
+        /* ★新規: 更新反映ボタンのデザイン */
+        /* -------------------------------------- */
+        .reflect-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent-color); /* 赤色で目立たせる */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 30px; /* リストとの間にスペース */
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .reflect-button:hover {
+            background-color: #E04A4F;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>管理者アクセス</h1>
+        <p>〜 お知らせ・更新情報の投稿 〜</p>
+        <a href="update.html" style="color: white; text-decoration: underline;">[お知らせページへ戻る]</a>
+    </header>
+
+    <main class="content-container">
+        <div class="admin-main">
+            <h2 class="admin-title">新規お知らせ 投稿フォーム</h2>
+            
+            <form id="admin-post-form" action="/api/post_update" method="POST">
+                <div class="form-group">
+                    <label for="date">日付（更新日）:</label>
+                    <input type="date" id="date" name="update_date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">タイトル/概要:</label>
+                    <input type="text" id="title" name="update_title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">詳細内容:</label>
+                    <textarea id="content" name="update_content"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-button">🏀 新規お知らせを投稿</button>
+            </form>
+            
+            <div class="article-list">
+                <h2 class="admin-title" style="margin-top: 20px;">既存記事の管理</h2>
+                
+                <div class="article-item" data-id="1">
+                    <div class="article-info">
+                        <span>トップページに燃えるボールのアニメーションが追加</span>
+                        <span class="article-date">2025.10.25</span>
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-button edit-button" data-action="edit">記事編集</button>
+                        <button class="action-button delete-button" data-action="delete">記事削除</button>
+                    </div>
+                </div>
+                
+                <div class="article-item" data-id="2">
+                    <div class="article-info">
+                        <span>「キャラクター」ページで明日香と風華のプロフィールが公開</span>
+                        <span class="article-date">2025.10.24</span>
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-button edit-button" data-action="edit">記事編集</button>
+                        <button class="action-button delete-button" data-action="delete">記事削除</button>
+                    </div>
+                </div>
+
+                <div class="article-item" data-id="3">
+                    <div class="article-info">
+                        <span>【Pick Up Topics】バスケ部マネージャー風華の愛用アイテムを公開！</span>
+                        <span class="article-date">2025.07.15</span>
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-button edit-button" data-action="edit">記事編集</button>
+                        <button class="action-button delete-button" data-action="delete">記事削除</button>
+                    </div>
+                </div>
+                
+                <div class="article-item" data-id="4">
+                    <div class="article-info">
+                        <span>【M's PEOPLE】PBWリーグを夢見る女子高生の日常を追う！</span>
+                        <span class="article-date">2025.07.15</span>
+                    </div>
+                    <div class="article-actions">
+                        <button class="action-button edit-button" data-action="edit">記事編集</button>
+                        <button class="action-button delete-button" data-action="delete">記事削除</button>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <button id="reflect-update" class="reflect-button">
+                ✅ お知らせページに更新を反映
+            </button>
+            </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 聖桜学園プロジェクト</p>
+    </footer>
+
+    <script>
+        // 1. 新規投稿フォームの処理
+        document.getElementById('admin-post-form').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            
+            alert('🎉 新規お知らせの投稿が完了しました！');
+            
+            this.reset();
+        });
+        
+        // 2. 記事編集・削除ボタンの処理
+        document.querySelector('.article-list').addEventListener('click', function(event) {
+            const button = event.target.closest('.action-button');
+            if (!button) return; 
+            
+            const action = button.dataset.action;
+            const articleItem = button.closest('.article-item');
+            const articleId = articleItem.dataset.id;
+            const articleTitle = articleItem.querySelector('.article-info span').textContent.trim();
+
+            if (action === 'edit') {
+                alert(`✍️ 記事ID: ${articleId}「${articleTitle}」を編集フォームにロードしました。（※静的サイトのため実際には編集できません）`);
+            } else if (action === 'delete') {
+                if (confirm(`⚠️ 記事ID: ${articleId}「${articleTitle}」を本当に削除しますか？`)) {
+                    alert(`🗑️ 記事ID: ${articleId}「${articleTitle}」を削除しました。`);
+                    articleItem.remove(); 
+                }
+            }
+        });
+
+        // 3. ★新規: 更新反映ボタンの処理
+        document.getElementById('reflect-update').addEventListener('click', function() {
+            // 静的サイトのため、実際にはデータは反映されないが、更新完了のメッセージでシミュレーションする
+            alert('✅ 最新の記事リストがupdate.htmlに反映されました！公開ページをご確認ください。');
+            
+            // オプション: 実際の運用をシミュレートするため、お知らせページに遷移させる
+            // window.location.href = 'update.html';
+        });
+    </script>
+</body>
+</html>

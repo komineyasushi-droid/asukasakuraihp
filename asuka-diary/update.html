@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖桜学園 - 【最新】更新日・お知らせ</title>
+    
+    <style>
+        /* ------------------------------------------------ */
+        /* ★重要: CSSは全て統合済み。単独でデザインが崩れない状態。 */
+        /* ------------------------------------------------ */
+        :root {
+            --main-color: #A0C4FF;
+            --accent-color: #FF5A5F;
+            --bg-color: #F8F8FF;
+            --text-color: #333333;
+            --max-width: 900px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* ヘッダーとフッター（共通デザイン） */
+        .main-header {
+            background-color: var(--main-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '🏀';
+            position: absolute;
+            bottom: -10px;
+            right: 10%;
+            font-size: 50px;
+            opacity: 0.5;
+            animation: shoot 5s infinite linear;
+        }
+
+        @keyframes shoot {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+            50% { transform: translate(-100px, -100px) rotate(180deg); opacity: 0.8; }
+            100% { transform: translate(-200px, 0) rotate(360deg); opacity: 0.5; }
+        }
+
+        .main-header h1 {
+            margin-bottom: 5px;
+            font-size: 2.2em;
+        }
+
+        .main-footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 1px solid #eeeeee;
+            color: #999;
+        }
+        
+        /* -------------------------------------- */
+        /* ★お知らせページ固有のデザイン */
+        /* -------------------------------------- */
+        
+        .update-main {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .update-title {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .update-title h2 {
+            font-size: 2.5em;
+            color: var(--main-color);
+            margin: 0;
+        }
+        
+        /* お知らせアイテムのリストデザイン */
+        .update-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 更新日付のデザイン (01.jpgのデザインを再現) */
+        .update-date {
+            min-width: 100px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-right: 20px;
+            font-size: 0.9em;
+        }
+
+        .update-content a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .update-content a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        /* -------------------------------------- */
+        /* ★体育館の背景画像とエフェクト (1760128952830.jpgを使用) */
+        /* -------------------------------------- */
+        
+        .update-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            background-image: url('1760128952830.jpg'); 
+            background-size: cover;
+            background-position: center;
+            opacity: 0.7; /* 70%透明度 */
+        }
+
+        .white-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3); /* 30%の白を重ねて白っぽくする */
+            z-index: 6;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="update-background"></div>
+    <div class="white-overlay"></div>
+    
+    <header class="main-header">
+        <h1>聖桜学園 Web プロジェクト</h1>
+        <p>〜 桜区から始まる、あたしと風華の物語 〜</p>
+        <a href="index.html" style="color: white; text-decoration: underline;">[トップページへ戻る]</a>
+    </header>
+
+    <main class="content-container">
+        <div class="update-main">
+            <div class="update-title">
+                <h2>お知らせ</h2>
+                <p>NEWS & INFORMATION</p>
+            </div>
+            
+            <div class="update-list">
+                <div class="update-item">
+                    <span class="update-date">2025.10.25</span>
+                    <span class="update-content">トップページに**燃えるボールのアニメーション**が追加されました！</span>
+                </div>
+                <div class="update-item">
+                    <span class="update-date">2025.10.24</span>
+                    <span class="update-content">「キャラクター」ページで**明日香と風華のプロフィール**が公開されました！</span>
+                </div>
+                <div class="update-item">
+                    <span class="update-date">2025.07.15</span>
+                    <span class="update-content"><a href="#">【Pick Up Topics】バスケ部マネージャー風華の愛用アイテムを公開！</a></span>
+                </div>
+                <div class="update-item">
+                    <span class="update-date">2025.07.15</span>
+                    <span class="update-content"><a href="#">【M's PEOPLE】PBWリーグを夢見る女子高生の日常を追う！</a></span>
+                </div>
+            </div>
+            
+            <div style="text-align: right; margin-top: 30px;">
+                <p style="font-size: 0.8em; color: #999;">
+                    ※管理者用：<a href="admin.html" style="color: blue;">お知らせ管理ページへ</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 聖桜学園プロジェクト</p>
+    </footer>
+</body>
+</html>
